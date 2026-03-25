@@ -1,11 +1,1294 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <title>张凯作品集</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>张凯 - AI工具导航 + 工业设计作品集</title>
+  <meta name="description" content="AI工具导航 + 工业设计作品集。深色玻璃拟态、霓虹发光边框、丰富动效的作品级个人站。" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg0:#0b0f14;
+      --bg1:#0a1220;
+      --c1:#6d7dff; /* 蓝 */
+      --c2:#b46bff; /* 紫 */
+      --c3:#22d3ee; /* 青 */
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --glass: rgba(255,255,255,.05);
+      --glass2: rgba(255,255,255,.075);
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(255,255,255,.16);
+      --shadow: rgba(0, 0, 0, .35);
+    }
+    html { scroll-behavior: smooth; }
+    body{
+      background: radial-gradient(1000px 700px at 20% 0%, rgba(109,125,255,.18), transparent 55%),
+                  radial-gradient(900px 650px at 85% 10%, rgba(180,107,255,.16), transparent 56%),
+                  radial-gradient(750px 650px at 50% 105%, rgba(34,211,238,.10), transparent 60%),
+                  linear-gradient(180deg, var(--bg1), var(--bg0));
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    /* subtle animated noise */
+    .noise{
+      pointer-events:none;
+      position:fixed;
+      inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+      opacity:.10;
+      transform: translateZ(0);
+      animation: noiseShift 8s steps(10) infinite;
+    }
+    @keyframes noiseShift{
+      0%{ transform:translate3d(0,0,0); }
+      100%{ transform:translate3d(-3%,2%,0); }
+    }
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 18px 55px rgba(0,0,0,.30);
+    }
+    /* neon border (gradient outline) */
+    .neon-card{
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .neon-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: linear-gradient(135deg, rgba(109,125,255,.85), rgba(180,107,255,.70), rgba(34,211,238,.55));
+      opacity:.0;
+      filter: blur(16px);
+      transition: opacity .25s ease;
+      z-index:-1;
+    }
+    .neon-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(800px 220px at 20% 0%, rgba(109,125,255,.18), transparent 55%),
+                  radial-gradient(700px 220px at 80% 20%, rgba(180,107,255,.18), transparent 52%);
+      opacity:.6;
+      z-index:-1;
+      pointer-events:none;
+    }
+    .neon-card:hover::before{ opacity:.95; }
+    .neon-card:hover{
+      transform: translateY(-6px);
+      border-color: rgba(255,255,255,.16);
+      box-shadow:
+        0 22px 70px rgba(0,0,0,.45),
+        0 0 0 1px rgba(255,255,255,.10),
+        0 0 42px rgba(109,125,255,.20),
+        0 0 38px rgba(180,107,255,.18);
+    }
+    .hover-lift{
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      will-change: transform;
+    }
+    /* animated gradient underline */
+    .grad-underline{
+      background-image: linear-gradient(90deg, rgba(109,125,255,.0), rgba(109,125,255,.95), rgba(180,107,255,.90), rgba(34,211,238,.75), rgba(109,125,255,.0));
+      background-size: 240% 100%;
+      animation: gradMove 2.6s linear infinite;
+      height: 2px;
+      border-radius: 999px;
+      opacity:.85;
+    }
+    @keyframes gradMove{
+      0%{ background-position: 0% 50%; }
+      100%{ background-position: 100% 50%; }
+    }
+    /* section reveal */
+    .reveal{
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.is-visible{
+      opacity:1;
+      transform: translateY(0);
+    }
+    /* tab underline */
+    .tab-pill{
+      position: relative;
+      overflow: hidden;
+    }
+    .tab-pill::after{
+      content:"";
+      position:absolute;
+      left:-10%;
+      top:100%;
+      width:120%;
+      height:2px;
+      background: linear-gradient(90deg, rgba(109,125,255,.0), rgba(109,125,255,.95), rgba(180,107,255,.90), rgba(34,211,238,.75), rgba(109,125,255,.0));
+      opacity:0;
+      transform: translateY(4px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .tab-pill.active::after{
+      opacity:1;
+      transform: translateY(0);
+    }
+    /* cards fade-in for filtering */
+    .filter-card{
+      transition: opacity .25s ease, transform .25s ease;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .filter-card.is-hidden{
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      height: 0;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      overflow: hidden;
+    }
+    /* accessible focus */
+    :focus-visible{
+      outline: 2px solid rgba(34,211,238,.75);
+      outline-offset: 2px;
+    }
+    /* button shimmer */
+    .shimmer-btn{
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-btn::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: linear-gradient(115deg,
+        rgba(255,255,255,0) 20%,
+        rgba(255,255,255,.35) 35%,
+        rgba(255,255,255,0) 50%
+      );
+      transform: translateX(-120%);
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .shimmer-btn:hover::before{
+      opacity: 1;
+      animation: shimmer 1s ease;
+    }
+    @keyframes shimmer{
+      0%{ transform: translateX(-120%); }
+      100%{ transform: translateX(120%); }
+    }
+    /* neon icon glow */
+    .icon-glow{
+      filter: drop-shadow(0 0 18px rgba(109,125,255,.35)) drop-shadow(0 0 18px rgba(180,107,255,.25));
+    }
+    /* small divider */
+    .soft-divider{
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.18), rgba(255,255,255,0));
+    }
+  </style>
 </head>
 <body>
-    <h1>你好，我是张凯</h1>
-    <p>工业设计作品集</p>
+  <div class="noise" aria-hidden="true"></div>
+  <!-- Top shell -->
+  <header class="relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl neon-card glass hover-lift flex items-center justify-center border border-white/10">
+            <!-- logo dot -->
+            <svg class="icon-glow" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                  <stop stop-color="#6d7dff"/>
+                  <stop offset="0.5" stop-color="#b46bff"/>
+                  <stop offset="1" stop-color="#22d3ee"/>
+                </linearGradient>
+              </defs>
+              <path d="M12 2.5c4.7 0 9.5 3.8 9.5 9.5S16.7 21.5 12 21.5 2.5 17.7 2.5 12 7.3 2.5 12 2.5Z" stroke="url(#g)" stroke-width="1.5"/>
+              <path d="M12 7.3c2.7 0 4.7 2.2 4.7 4.7S14.7 16.7 12 16.7 7.3 14.5 7.3 12 9.3 7.3 12 7.3Z" fill="url(#g)" opacity="0.25"/>
+              <path d="M9 12.1c1.2-2.3 3.9-3.6 6.4-3.1" stroke="url(#g)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="leading-tight">
+            <div class="text-sm text-white/70">AI工具导航 + 工业设计</div>
+            <div class="text-base font-semibold tracking-wide">张凯</div>
+          </div>
+        </div>
+        <nav class="hidden md:flex items-center gap-2">
+          <a href="#tools" class="px-3 py-2 rounded-xl text-sm text-white/75 hover:bg-white/5 hover:text-white transition">AI工具</a>
+          <a href="#portfolio" class="px-3 py-2 rounded-xl text-sm text-white/75 hover:bg-white/5 hover:text-white transition">项目</a>
+          <a href="#skills" class="px-3 py-2 rounded-xl text-sm text-white/75 hover:bg-white/5 hover:text-white transition">技能</a>
+          <a href="#about" class="px-3 py-2 rounded-xl text-sm text-white/75 hover:bg-white/5 hover:text-white transition">关于</a>
+          <a href="#contact" class="px-3 py-2 rounded-xl text-sm text-white/75 hover:bg-white/5 hover:text-white transition">联系</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <!-- Hero -->
+  <main>
+    <section class="relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <div class="grid lg:grid-cols-12 gap-8 items-center">
+          <!-- avatar -->
+          <div class="lg:col-span-5 reveal" data-reveal>
+            <div class="neon-card glass hover-lift rounded-3xl p-6 sm:p-8">
+              <div class="flex items-start gap-4">
+                <div class="relative">
+                  <div class="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl bg-gradient-to-br from-indigo-500/40 via-fuchsia-500/35 to-cyan-400/30 border border-white/10 shadow-[0_0_60px_rgba(109,125,255,.15)]"></div>
+                  <!-- avatar placeholder -->
+                  <div class="absolute inset-0 rounded-3xl flex items-center justify-center">
+                    <svg class="icon-glow" width="62" height="62" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+                          <stop stop-color="#6d7dff" />
+                          <stop offset="0.55" stop-color="#b46bff" />
+                          <stop offset="1" stop-color="#22d3ee" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M32 6c14.359 0 26 11.641 26 26S46.359 58 32 58 6 46.359 6 32 17.641 6 32 6Z" stroke="url(#a)" stroke-width="2" opacity="0.75"/>
+                      <path d="M20 52c3.2-10 20.8-10 24 0" stroke="url(#a)" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M32 34c6 0 10-4.2 10-9.5S38 15 32 15s-10 4.2-10 9.5S26 34 32 34Z" fill="url(#a)" opacity="0.18"/>
+                      <path d="M24.8 24.3c1.7-4.2 5.8-7 10.3-7" stroke="url(#a)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl border border-white/10 bg-white/5">
+                    <span class="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,.65)]"></span>
+                    <span class="text-xs text-white/75">可视化设计 · AI工具整合 · 原型体验</span>
+                  </div>
+                  <div class="mt-5 text-sm text-white/65 leading-relaxed">
+                    以“工业设计的结构逻辑 + AI效率的探索方式”，把抽象灵感落地为可交付的方案与作品。
+                  </div>
+                </div>
+              </div>
+              <div class="mt-6 soft-divider"></div>
+              <div class="mt-6 grid grid-cols-3 gap-3">
+                <div class="rounded-2xl p-3 border border-white/10 bg-white/5">
+                  <div class="text-xs text-white/60">聚焦</div>
+                  <div class="mt-1 text-sm font-semibold">人机交互</div>
+                </div>
+                <div class="rounded-2xl p-3 border border-white/10 bg-white/5">
+                  <div class="text-xs text-white/60">工具链</div>
+                  <div class="mt-1 text-sm font-semibold">Rhino · KeyShot</div>
+                </div>
+                <div class="rounded-2xl p-3 border border-white/10 bg-white/5">
+                  <div class="text-xs text-white/60">AI方向</div>
+                  <div class="mt-1 text-sm font-semibold">生成 + 效率</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- hero right -->
+          <div class="lg:col-span-7 reveal" data-reveal>
+            <div class="neon-card glass hover-lift rounded-3xl p-6 sm:p-8">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl border border-white/10 bg-white/5">
+                <span class="text-xs text-white/65">Modern Dark Tech</span>
+                <span class="w-px h-4 bg-white/15"></span>
+                <span class="text-xs text-white/70">Glass · Neon · Motion</span>
+              </div>
+              <h1 class="mt-5 text-4xl sm:text-5xl font-semibold tracking-tight">
+                张凯
+              </h1>
+              <div class="mt-3 text-lg sm:text-xl text-white/75 font-medium">
+                AI工具探索者 / 工业设计学生
+              </div>
+              <div class="mt-5 leading-relaxed text-white/70 max-w-xl">
+                这里汇集我正在使用的 AI 工具导航（从绘画到效率），同时展示工业设计作品：从用户画像到结构与渲染，
+                每一个项目都围绕“可理解、可验证、可落地”展开。
+              </div>
+              <div class="mt-6 flex flex-wrap gap-3 items-center">
+                <a href="#portfolio" class="shimmer-btn group inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-500/85 via-fuchsia-500/80 to-cyan-400/75 border border-white/10 hover:brightness-110 transition">
+                  <span class="text-sm font-semibold">查看项目</span>
+                  <svg class="opacity-90 group-hover:translate-x-0.5 transition" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+                <a href="#tools" class="shimmer-btn inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                  <span class="text-sm font-semibold">AI工具导航</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 3v18" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M3 12h18" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M7.2 7.2l9.6 9.6" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                  </svg>
+                </a>
+                <div class="w-full sm:w-auto flex items-center gap-2 text-xs text-white/60">
+                  <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-indigo-300"></span>
+                    <span>作品集级UI · 响应式 · hover动效</span>
+                  </span>
+                </div>
+              </div>
+              <div class="mt-6">
+                <div class="grad-underline"></div>
+                <div class="mt-2 text-sm text-white/60">
+                  鼠标悬停卡片：霓虹边框、玻璃层次、渐变阴影同时响应。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Tools -->
+    <section id="tools" class="relative py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal" data-reveal>
+          <div class="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-sm text-white/60">AI工具导航</div>
+              <h2 class="text-2xl sm:text-3xl font-semibold mt-1">精选工具合集 · 一键访问</h2>
+            </div>
+            <div class="text-sm text-white/60 max-w-xl">
+              按分类切换展示。每张卡片都带有图标、说明和“访问”入口（当前示例链接可按需替换）。
+            </div>
+          </div>
+          <div class="mt-6 glass rounded-3xl p-4 sm:p-5">
+            <div class="flex flex-wrap gap-2">
+              <button class="tab-pill active px-4 py-2 rounded-2xl bg-white/6 border border-white/10 text-sm text-white/80 transition"
+                      data-filter="all" type="button">
+                全部
+              </button>
+              <button class="tab-pill px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/75 hover:bg-white/8 transition"
+                      data-filter="drawing" type="button">
+                AI绘画
+              </button>
+              <button class="tab-pill px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/75 hover:bg-white/8 transition"
+                      data-filter="writing" type="button">
+                AI写作
+              </button>
+              <button class="tab-pill px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/75 hover:bg-white/8 transition"
+                      data-filter="video" type="button">
+                AI视频
+              </button>
+              <button class="tab-pill px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/75 hover:bg-white/8 transition"
+                      data-filter="design" type="button">
+                AI设计
+              </button>
+              <button class="tab-pill px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-sm text-white/75 hover:bg-white/8 transition"
+                      data-filter="efficiency" type="button">
+                AI效率工具
+              </button>
+            </div>
+            <div class="mt-4 soft-divider"></div>
+            <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <!-- tool: AI绘画 -->
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="drawing">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- paint icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M3.5 20.5c4.6.6 8.2-1 9.7-3.3L20 10.4c1.2-1.2 1.2-3.1 0-4.3-1.2-1.2-3.1-1.2-4.3 0l-6.8 6.8C6.6 14.4 5 18 5.6 22.6" stroke="url(#g2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M14.5 5.5l4 4" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                      <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Midjourney</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      高质量图像生成，适合探索风格、概念草图与渲染参考。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">文本到图像</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">风格探索</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：概念阶段</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="drawing">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- image icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4.5 6.5A2 2 0 0 1 6.5 4.5h11A2 2 0 0 1 19.5 6.5v11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-11Z" stroke="url(#g3)" stroke-width="2"/>
+                      <path d="M8 10.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" fill="url(#g3)" opacity="0.25"/>
+                      <path d="M5.5 17.5l4-4 3 3 2-2 4 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+                      <defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Stable Diffusion</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      开源可定制：适合做风格训练、LoRA 与批量生成参考图。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">LoRA</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">可控生成</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：深入探索</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <!-- tool: AI写作 -->
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="writing">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- write icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4.5 19.5v-4.2L15.7 4.1a2 2 0 0 1 2.8 0l1.4 1.4a2 2 0 0 1 0 2.8L9.7 20.3H4.5Z" stroke="url(#g4)" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M13.5 6.9l3.6 3.6" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+                      <defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">ChatGPT</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      从需求梳理到方案产出：适合生成文案、逻辑梳理与迭代对话。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">对话推理</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">方案生成</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：需求阶段</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="writing">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- doc icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 3.8h7l3 3v13.4a1.6 1.6 0 0 1-1.6 1.6H7A1.6 1.6 0 0 1 5.4 20.2V5.4A1.6 1.6 0 0 1 7 3.8Z" stroke="url(#g5)" stroke-width="2"/>
+                      <path d="M14 3.8V7a1.6 1.6 0 0 0 1.6 1.6H19" stroke="white" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+                      <path d="M8 12h8" stroke="white" stroke-width="2" opacity="0.7" stroke-linecap="round"/>
+                      <path d="M8 15.5h6" stroke="white" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
+                      <defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Claude</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      擅长长文本理解：适合做用户研究材料整理、归纳与改写。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">长文总结</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">结构化输出</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：材料整理</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <!-- tool: AI视频 -->
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="video">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- video icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4.5 7.5A2 2 0 0 1 6.5 5.5h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2v-9Z" stroke="url(#g6)" stroke-width="2"/>
+                      <path d="M18.5 10l3-1.6v7.2l-3-1.6V10Z" fill="url(#g6)" opacity="0.25"/>
+                      <path d="M10 9.2v5.6l5-2.8-5-2.8Z" fill="white" opacity="0.22"/>
+                      <defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Runway</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      将脚本/提示词转成短视频：做产品演示与动态概念镜头很快。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">视频生成</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">镜头草图</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：演示与概念</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="video">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- timeline icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 6h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="url(#g7)" stroke-width="2"/>
+                      <path d="M7.5 11h3" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+                      <path d="M7.5 14.5h6" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                      <path d="M14.5 11.2l2 1.1-2 1.1v-2.2Z" fill="white" opacity="0.25"/>
+                      <defs><linearGradient id="g7" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Pika</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      以图生视频：适合把产品渲染图转成“动态展示镜头”。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">图转视频</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">快速迭代</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：动态概念</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <!-- tool: AI设计 -->
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="design">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- ui icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4.5 7.5A2 2 0 0 1 6.5 5.5h11A2 2 0 0 1 19.5 7.5v9a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-9Z" stroke="url(#g8)" stroke-width="2"/>
+                      <path d="M8 9.5h8" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+                      <path d="M8 13h5" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                      <path d="M8 16h7" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
+                      <defs><linearGradient id="g8" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Figma（AI插件/工作流）</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      用 AI 辅助布局、文案与组件生成，提升界面迭代效率。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">UI原型</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">组件化</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：交互&视觉</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="design">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- design dice icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 4.5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2Z" stroke="url(#g9)" stroke-width="2"/>
+                      <path d="M9 9.2h.01" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M15 9.2h.01" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M12 13.1h.01" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+                      <defs><linearGradient id="g9" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Canva（AI设计能力）</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      快速生成海报、展示页与案例排版，适合做作品集“讲述层”。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">排版加速</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">风格模板</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：展示页</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <!-- tool: AI效率工具 -->
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="efficiency">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- bolt icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" stroke="url(#g10)" stroke-width="2" stroke-linejoin="round"/>
+                      <defs><linearGradient id="g10" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Notion AI</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      用 AI 让笔记变得“可执行”：总结、改写、生成计划与文档草稿。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">知识管理</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">行动草稿</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：整理与产出</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div class="filter-card neon-card hover-lift glass rounded-2xl p-4" data-category="efficiency">
+                <div class="flex items-start gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/25 to-cyan-400/20 border border-white/10 flex items-center justify-center icon-glow">
+                    <!-- automation icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 7h10v10H7V7Z" stroke="url(#g11)" stroke-width="2"/>
+                      <path d="M4 11V7a3 3 0 0 1 3-3h4" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M20 13v4a3 3 0 0 1-3 3h-4" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                      <defs><linearGradient id="g11" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-semibold">Zapier（自动化）</div>
+                    <div class="text-sm text-white/65 mt-1 leading-relaxed">
+                      把重复流程自动化：从表单到通知、从整理到同步，提高效率。
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 flex-wrap">
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">自动化</span>
+                      <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">工作流</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">推荐：日常提效</span>
+                  <a href="#" target="_blank" rel="noopener noreferrer"
+                     class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                    <span class="text-sm font-semibold">访问</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-xs text-white/55">
+              小提示：将每张卡片的访问链接替换为你真实使用/推荐的地址即可。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Portfolio -->
+    <section id="portfolio" class="relative py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal" data-reveal>
+          <div class="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-sm text-white/60">Portfolio</div>
+              <h2 class="text-2xl sm:text-3xl font-semibold mt-1">工业设计作品展示</h2>
+            </div>
+            <div class="text-sm text-white/60 max-w-xl">
+              采用卡片式结构：上方“图片”区域为占位图（可替换为实际产品渲染图/爆炸图）。
+            </div>
+          </div>
+          <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- project 1 -->
+            <article class="neon-card glass hover-lift rounded-3xl p-4 sm:p-5 reveal" data-reveal>
+              <div class="relative rounded-2xl overflow-hidden border border-white/10">
+                <div class="aspect-[4/3] w-full bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/20">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="text-xs text-white/60">项目图占位</div>
+                      <div class="text-lg font-semibold">老年人助行器</div>
+                    </div>
+                  </div>
+                  <!-- diagonal grid -->
+                  <div class="absolute inset-0 opacity-35"
+                       style="background-image: linear-gradient(rgba(255,255,255,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px); background-size: 22px 22px;">
+                  </div>
+                </div>
+                <!-- overlay neon label -->
+                <div class="absolute top-3 left-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <span class="h-2 w-2 rounded-full bg-indigo-300 shadow-[0_0_18px_rgba(109,125,255,.65)]"></span>
+                  <span class="text-xs text-white/70">人机 · 无障碍</span>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-lg font-semibold">老年人助行器设计</h3>
+                <p class="mt-2 text-sm text-white/65 leading-relaxed">
+                  面向移动能力下降人群的可调结构、握持舒适度与稳定性策略；用用户画像验证交互与使用路径。
+                </p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">Rhino建模</span>
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">KeyShot渲染</span>
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">可用性评估</span>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">点击查看详情（示例）</span>
+                  <a class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition"
+                     href="#contact" aria-label="联系我查看该项目详情">
+                    <span class="text-sm font-semibold">交流</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+            <!-- project 2 -->
+            <article class="neon-card glass hover-lift rounded-3xl p-4 sm:p-5 reveal" data-reveal>
+              <div class="relative rounded-2xl overflow-hidden border border-white/10">
+                <div class="aspect-[4/3] w-full bg-gradient-to-br from-indigo-500/20 via-fuchsia-500/18 to-cyan-400/22">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="text-xs text-white/60">项目图占位</div>
+                      <div class="text-lg font-semibold">用户画像分析</div>
+                    </div>
+                  </div>
+                  <!-- radial dots -->
+                  <div class="absolute inset-0 opacity-40"
+                       style="background: radial-gradient(circle at 20% 30%, rgba(109,125,255,.35) 0 2px, transparent 3px),
+                                      radial-gradient(circle at 65% 40%, rgba(180,107,255,.32) 0 2px, transparent 3px),
+                                      radial-gradient(circle at 45% 75%, rgba(34,211,238,.28) 0 2px, transparent 3px); background-size: 120px 120px;">
+                  </div>
+                </div>
+                <div class="absolute top-3 left-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <span class="h-2 w-2 rounded-full bg-fuchsia-300 shadow-[0_0_18px_rgba(180,107,255,.55)]"></span>
+                  <span class="text-xs text-white/70">研究 · 策略</span>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-lg font-semibold">用户画像分析</h3>
+                <p class="mt-2 text-sm text-white/65 leading-relaxed">
+                  从任务拆解、痛点归因到使用场景验证，构建可落地的设计原则与决策依据。
+                </p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">需求拆解</span>
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">情境推演</span>
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">指标验证</span>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">可用AI加速研究</span>
+                  <a class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition"
+                     href="#tools">
+                    <span class="text-sm font-semibold">看工具</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+            <!-- project 3 -->
+            <article class="neon-card glass hover-lift rounded-3xl p-4 sm:p-5 reveal" data-reveal>
+              <div class="relative rounded-2xl overflow-hidden border border-white/10">
+                <div class="aspect-[4/3] w-full bg-gradient-to-br from-indigo-500/22 via-fuchsia-500/18 to-cyan-400/18">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="text-xs text-white/60">项目图占位</div>
+                      <div class="text-lg font-semibold">产品爆炸图设计</div>
+                    </div>
+                  </div>
+                  <!-- exploded lines -->
+                  <div class="absolute inset-0 opacity-35"
+                       style="background:
+                       linear-gradient(45deg, rgba(255,255,255,.25) 1px, transparent 1px) 0 0/26px 26px,
+                       linear-gradient(135deg, rgba(255,255,255,.18) 1px, transparent 1px) 0 0/26px 26px;">
+                  </div>
+                </div>
+                <div class="absolute top-3 left-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                  <span class="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(34,211,238,.6)]"></span>
+                  <span class="text-xs text-white/70">结构 · 展示</span>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-lg font-semibold">产品爆炸图设计</h3>
+                <p class="mt-2 text-sm text-white/65 leading-relaxed">
+                  通过拆解逻辑与标注层级，让结构关系在一张图中更清晰可读。
+                </p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">爆炸视图</span>
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">材质灯光</span>
+                  <span class="text-xs px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-white/70">信息可视化</span>
+                </div>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                  <span class="text-xs text-white/55">适合作品集叙事</span>
+                  <a class="shimmer-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8 transition"
+                     href="#contact">
+                    <span class="text-sm font-semibold">联系</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Skills -->
+    <section id="skills" class="relative py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal" data-reveal>
+          <div class="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-sm text-white/60">Skills</div>
+              <h2 class="text-2xl sm:text-3xl font-semibold mt-1">工具与能力栈</h2>
+            </div>
+            <div class="text-sm text-white/60 max-w-xl">
+              标签化展示，带轻量图标与霓虹边框感，适合快速扫读。
+            </div>
+          </div>
+          <div class="mt-6 glass rounded-3xl p-5 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div class="neon-card hover-lift rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/6 transition">
+                <div class="flex items-center gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 3l8.5 5v8L12 21l-8.5-5V8L12 3Z" stroke="url(#s1)" stroke-width="2"/>
+                      <path d="M8 10.5h8" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M9 14.5h6" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+                      <defs><linearGradient id="s1" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold">Rhino</div>
+                    <div class="text-sm text-white/65 mt-1">工业建模 · 曲面与结构</div>
+                  </div>
+                </div>
+              </div>
+              <div class="neon-card hover-lift rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/6 transition">
+                <div class="flex items-center gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M6 18V6h12v12H6Z" stroke="url(#s2)" stroke-width="2"/>
+                      <path d="M8.5 9.5h7" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M8.5 12.5h7" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+                      <path d="M8.5 15.5h5" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+                      <defs><linearGradient id="s2" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold">KeyShot</div>
+                    <div class="text-sm text-white/65 mt-1">材质灯光 · 高质渲染</div>
+                  </div>
+                </div>
+              </div>
+              <div class="neon-card hover-lift rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/6 transition">
+                <div class="flex items-center gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 2.8c4.6 0 8.4 3.7 8.4 8.4 0 4.1-2.9 7.3-6.8 8.2" stroke="url(#s3)" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M12 2.8c-4.6 0-8.4 3.7-8.4 8.4 0 4.1 2.9 7.3 6.8 8.2" stroke="url(#s3)" stroke-width="2" stroke-linecap="round" opacity="0.65"/>
+                      <path d="M8.7 14.8 6.4 17.1" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+                      <path d="M15.3 14.8 17.6 17.1" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+                      <defs><linearGradient id="s3" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold">AI工具</div>
+                    <div class="text-sm text-white/65 mt-1">生成 · 文案 · 效率工作流</div>
+                  </div>
+                </div>
+              </div>
+              <div class="neon-card hover-lift rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/6 transition">
+                <div class="flex items-center gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 7h10v10H7V7Z" stroke="url(#s4)" stroke-width="2"/>
+                      <path d="M4 12h3" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M17 12h3" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                      <path d="M12 4v3" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+                      <path d="M12 17v3" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
+                      <defs><linearGradient id="s4" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold">UX设计</div>
+                    <div class="text-sm text-white/65 mt-1">信息架构 · 原型交互 · 可用性</div>
+                  </div>
+                </div>
+              </div>
+              <div class="neon-card hover-lift rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/6 transition">
+                <div class="flex items-center gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 19V5h14v14H5Z" stroke="url(#s5)" stroke-width="2"/>
+                      <path d="M8 15l3-6 2.2 4.2L15.3 11 18 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+                      <defs><linearGradient id="s5" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold">展示叙事</div>
+                    <div class="text-sm text-white/65 mt-1">爆炸图 · 渲染排版 · 讲述逻辑</div>
+                  </div>
+                </div>
+              </div>
+              <div class="neon-card hover-lift rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/6 transition">
+                <div class="flex items-center gap-3">
+                  <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 7h10v10H7V7Z" stroke="url(#s6)" stroke-width="2"/>
+                      <path d="M10 10h4" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                      <path d="M9.2 14.2 12 12l2.8 2.2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+                      <defs><linearGradient id="s6" x1="0" y1="0" x2="1" y2="1">
+                        <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                      </linearGradient></defs>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="font-semibold">工程落地思维</div>
+                    <div class="text-sm text-white/65 mt-1">参数化 · 可交付 · 迭代闭环</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 text-xs text-white/55">
+              如果你想把这些标签做成更“按钮化”的可交互版本，我也可以在同一文件里继续增强。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- About -->
+    <section id="about" class="relative py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal" data-reveal>
+          <div class="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-sm text-white/60">About</div>
+              <h2 class="text-2xl sm:text-3xl font-semibold mt-1">关于我</h2>
+            </div>
+          </div>
+          <div class="mt-6 grid lg:grid-cols-12 gap-4">
+            <div class="lg:col-span-7 neon-card glass hover-lift rounded-3xl p-5 sm:p-6 reveal" data-reveal>
+              <div class="text-sm text-white/65">设计方法</div>
+              <h3 class="text-xl font-semibold mt-2">让“灵感”变成“可验证的方案”</h3>
+              <p class="mt-3 text-sm text-white/70 leading-relaxed">
+                我喜欢把 AI 当作探索与加速器，而不是替代创作本身。先用 AI 做快速的生成与归纳，
+                再用工业设计的结构逻辑把方向收敛到“可落地”的细节：材料、形态、交互路径与呈现方式。
+              </p>
+              <div class="mt-4 soft-divider"></div>
+              <div class="mt-4 grid sm:grid-cols-2 gap-3">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-xs text-white/60">强项 01</div>
+                  <div class="mt-1 font-semibold">用户画像与场景推演</div>
+                  <div class="mt-2 text-sm text-white/65 leading-relaxed">
+                    把“需求”翻译为可设计的约束与指标。
+                  </div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-xs text-white/60">强项 02</div>
+                  <div class="mt-1 font-semibold">结构展示与渲染叙事</div>
+                  <div class="mt-2 text-sm text-white/65 leading-relaxed">
+                    用图让复杂关系变得一眼可懂。
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-5 neon-card glass hover-lift rounded-3xl p-5 sm:p-6 reveal" data-reveal>
+              <div class="text-sm text-white/65">当前专注</div>
+              <h3 class="text-xl font-semibold mt-2">AI + 工业设计的融合工作流</h3>
+              <p class="mt-3 text-sm text-white/70 leading-relaxed">
+                我正在把 AI 工具融入从“研究 -> 草图 -> 视觉 -> 展示”的流程中，让作品集的产出更快、更稳定、更有叙事张力。
+              </p>
+              <div class="mt-5 grid grid-cols-2 gap-3">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-xs text-white/60">目标</div>
+                  <div class="mt-1 font-semibold">作品级呈现</div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-xs text-white/60">节奏</div>
+                  <div class="mt-1 font-semibold">快速迭代</div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-xs text-white/60">风格</div>
+                  <div class="mt-1 font-semibold">暗黑科技</div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div class="text-xs text-white/60">原则</div>
+                  <div class="mt-1 font-semibold">结构可解释</div>
+                </div>
+              </div>
+              <div class="mt-5">
+                <a href="#contact"
+                   class="shimmer-btn inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-500/85 via-fuchsia-500/80 to-cyan-400/75 border border-white/10 hover:brightness-110 transition font-semibold">
+                  <span>一起交流设计与AI工作流</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Contact -->
+    <section id="contact" class="relative py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="reveal" data-reveal>
+          <div class="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-sm text-white/60">Contact</div>
+              <h2 class="text-2xl sm:text-3xl font-semibold mt-1">联系方式</h2>
+            </div>
+            <div class="text-sm text-white/60 max-w-xl">
+              邮箱与 GitHub：把你的作品集/AI工具协作方式告诉我，我们可以进一步完善内容与链接。
+            </div>
+          </div>
+          <div class="mt-6 grid lg:grid-cols-12 gap-4">
+            <div class="lg:col-span-7 neon-card glass hover-lift rounded-3xl p-5 sm:p-6 reveal" data-reveal>
+              <h3 class="text-xl font-semibold">欢迎联系</h3>
+              <p class="mt-3 text-sm text-white/70 leading-relaxed">
+                如果你希望把你的项目做成“可讲述的设计叙事”，或希望把 AI 工具融入工作流，我愿意一起讨论：从目标定义到产出结构，再到最终展示呈现。
+              </p>
+              <div class="mt-5 grid sm:grid-cols-2 gap-3">
+                <a href="mailto:your-email@example.com"
+                   class="shimmer-btn neon-card hover-lift glass rounded-2xl p-4 border border-white/10 bg-white/5 hover:bg-white/8 transition">
+                  <div class="flex items-center gap-3">
+                    <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4.5 7.5A2 2 0 0 1 6.5 5.5h11a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-9Z" stroke="url(#c1)" stroke-width="2"/>
+                        <path d="m6.8 8.3 5.2 4.2 5.2-4.2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+                        <defs><linearGradient id="c1" x1="0" y1="0" x2="1" y2="1">
+                          <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                        </linearGradient></defs>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-semibold">邮箱</div>
+                      <div class="text-sm text-white/65 mt-1">your-email@example.com</div>
+                    </div>
+                  </div>
+                </a>
+                <a href="https://github.com/" target="_blank" rel="noopener noreferrer"
+                   class="shimmer-btn neon-card hover-lift glass rounded-2xl p-4 border border-white/10 bg-white/5 hover:bg-white/8 transition">
+                  <div class="flex items-center gap-3">
+                    <div class="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/25 via-fuchsia-500/20 to-cyan-400/15 border border-white/10 flex items-center justify-center icon-glow">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 2.8c-5 0-9 4-9 9 0 4.1 2.6 7.6 6.3 8.8.5.1.7-.2.7-.5v-1.8c-2.6.6-3.2-1.1-3.2-1.1-.4-1.1-1-1.4-1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.4 1.1 3 .8.1-.7.3-1.1.6-1.4-2.1-.2-4.3-1-4.3-4.6 0-1 .4-1.9 1-2.6-.1-.2-.4-1.2.1-2.4 0 0 .8-.3 2.6 1 .8-.2 1.6-.3 2.5-.3.9 0 1.7.1 2.5.3 1.8-1.3 2.6-1 2.6-1 .5 1.2.2 2.2.1 2.4.6.7 1 1.6 1 2.6 0 3.6-2.2 4.4-4.3 4.6.3.3.6.9.6 1.7v2.5c0 .3.2.6.7.5 3.7-1.2 6.3-4.7 6.3-8.8 0-5-4-9-9-9Z" fill="url(#c2)" opacity="0.22"/>
+                        <path d="M12 2.8c-5 0-9 4-9 9 0 4.1 2.6 7.6 6.3 8.8.5.1.7-.2.7-.5v-1.8c-2.6.6-3.2-1.1-3.2-1.1-.4-1.1-1-1.4-1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.4 1.1 3 .8.1-.7.3-1.1.6-1.4-2.1-.2-4.3-1-4.3-4.6 0-1 .4-1.9 1-2.6-.1-.2-.4-1.2.1-2.4 0 0 .8-.3 2.6 1 .8-.2 1.6-.3 2.5-.3.9 0 1.7.1 2.5.3 1.8-1.3 2.6-1 2.6-1 .5 1.2.2 2.2.1 2.4.6.7 1 1.6 1 2.6 0 3.6-2.2 4.4-4.3 4.6.3.3.6.9.6 1.7v2.5c0 .3.2.6.7.5 3.7-1.2 6.3-4.7 6.3-8.8 0-5-4-9-9-9Z" stroke="url(#c2)" stroke-width="1.4" opacity="0.75"/>
+                        <defs><linearGradient id="c2" x1="0" y1="0" x2="1" y2="1">
+                          <stop stop-color="#6d7dff"/><stop offset="0.55" stop-color="#b46bff"/><stop offset="1" stop-color="#22d3ee"/>
+                        </linearGradient></defs>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-semibold">GitHub</div>
+                      <div class="text-sm text-white/65 mt-1">github.com/your-handle</div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div class="mt-5 soft-divider"></div>
+              <div class="mt-4 text-xs text-white/55">
+                你可以把邮箱与 GitHub 链接替换成你的真实信息；其余 UI/交互无需改动。
+              </div>
+            </div>
+            <div class="lg:col-span-5 neon-card glass hover-lift rounded-3xl p-5 sm:p-6 reveal" data-reveal>
+              <h3 class="text-xl font-semibold">快捷操作</h3>
+              <p class="mt-3 text-sm text-white/70 leading-relaxed">
+                一键跳转到关键模块；也可用来作为作品集“导航 CTA”。
+              </p>
+              <div class="mt-5 grid gap-3">
+                <a href="#tools" class="shimmer-btn inline-flex items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                  <span class="font-semibold">前往 AI工具导航</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+                <a href="#portfolio" class="shimmer-btn inline-flex items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition">
+                  <span class="font-semibold">前往 项目展示</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 17L17 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 7H17V15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+                <button id="copyEmailBtn" type="button"
+                        class="shimmer-btn inline-flex items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-500/85 via-fuchsia-500/80 to-cyan-400/75 border border-white/10 hover:brightness-110 transition font-semibold">
+                  <span>复制邮箱（示例）</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M9 9h10v10H9V9Z" stroke="white" stroke-width="2" opacity="0.9"/>
+                    <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                  </svg>
+                </button>
+                <div class="text-xs text-white/55 leading-relaxed">
+                  说明：该按钮当前会复制“your-email@example.com”（你可替换为真实邮箱）。
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer class="mt-10 pb-10">
+            <div class="glass rounded-3xl p-5 sm:p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="text-sm text-white/65">
+                  © <span id="year"></span> 张凯 · AI工具导航 + 工业设计作品集
+                </div>
+                <div class="text-xs text-white/55">
+                  深色玻璃拟态 · 霓虹发光边框 · hover动效 · 响应式适配
+                </div>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // Filter logic for tool cards
+    const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
+    const cards = Array.from(document.querySelectorAll('.filter-card'));
+    function setActiveFilter(filter){
+      filterButtons.forEach(btn => {
+        const isActive = btn.getAttribute('data-filter') === filter;
+        btn.classList.toggle('active', isActive);
+        if (isActive){
+          btn.classList.add('bg-white/6', 'text-white/85');
+          btn.classList.remove('bg-white/5', 'text-white/75');
+        } else {
+          btn.classList.remove('bg-white/6', 'text-white/85');
+          btn.classList.add('bg-white/5', 'text-white/75');
+        }
+      });
+      cards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        const visible = (filter === 'all') || (category === filter);
+        card.classList.toggle('is-hidden', !visible);
+      });
+    }
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-filter');
+        setActiveFilter(filter);
+      });
+    });
+    // Default
+    setActiveFilter('all');
+    // Reveal on scroll
+    const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries){
+        if (e.isIntersecting){
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+    // Copy email (example)
+    const copyBtn = document.getElementById('copyEmailBtn');
+    const email = 'your-email@example.com';
+    copyBtn?.addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText(email);
+        copyBtn.innerHTML = '<span>已复制邮箱</span>' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+          '<path d="M20 6 9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg>';
+        setTimeout(() => {
+          copyBtn.innerHTML = '<span>复制邮箱（示例）</span>' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+            '<path d="M9 9h10v10H9V9Z" stroke="white" stroke-width="2" opacity="0.9"/>' +
+            '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>' +
+            '</svg>';
+        }, 1300);
+      } catch (err){
+        alert('复制失败：请手动复制邮箱。');
+      }
+    });
+  </script>
 </body>
 </html>
