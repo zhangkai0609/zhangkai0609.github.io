@@ -1,218 +1,721 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Pioneer</title>
+<title>AI Pioneer | Future Intelligence</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
 <style>
-body{
-    background:#0b0f14;
-    color:white;
-    scroll-behavior:smooth;
+/* 核心：全屏滚动吸附 */
+html { scroll-snap-type: y mandatory; scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
+
+body {
+    margin: 0; background: #030508; color: white;
+    overflow-x: hidden; font-family: 'Inter', sans-serif;
+    transition: background 0.6s ease, color 0.6s ease;
 }
 
-/* ===== 高级导航 ===== */
-.navbar{
-    position:fixed;
-    top:30px;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:999;
+h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 
-    display:flex;
-    gap:30px;
-    padding:12px 40px;
+/* 背景画布固定 */
+#bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+.content { position: relative; z-index: 10; }
 
-    background:rgba(255,255,255,0.06);
-    backdrop-filter: blur(16px);
-    border-radius:60px;
-    border:1px solid rgba(255,255,255,0.15);
-
-    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+.page-section {
+    height: 100vh; width: 100vw; scroll-snap-align: start; scroll-snap-stop: always;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    position: relative; padding: 0 4%;
 }
 
-.nav-item{
-    position:relative;
-    font-size:16px;
-    color:#aaa;
-    cursor:pointer;
-    transition:0.4s;
-}
+.fade-in-up { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); }
+.fade-in-up.visible { opacity: 1; transform: translateY(0); }
 
-/* 关键交互 */
-.navbar:hover .nav-item{
-    transform:scale(0.85);
-}
+/* 左上角 Logo */
+.brand-logo { position: fixed; top: 30px; left: 40px; z-index: 110; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; }
+.brand-logo:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+.brand-icon { width: 30px; height: 30px; background: linear-gradient(135deg, #3b82f6, #9333ea); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-weight: 900; font-family: 'Orbitron', sans-serif; font-size: 14px; box-shadow: 0 0 15px rgba(147, 51, 234, 0.5); }
 
-.nav-item:hover{
-    color:white;
-    transform:scale(1.4);
-}
+/* 居中胶囊导航 */
+.navbar { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 40px; padding: 16px 50px; background: rgba(10, 12, 18, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 60px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); z-index: 100; transition: 0.4s ease; }
+.nav-item { color: #94a3b8; font-size: 0.95rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; transition: 0.3s; cursor: pointer; position: relative; }
+.nav-item::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: #3b82f6; transition: 0.3s; box-shadow: 0 0 10px #3b82f6; }
+.navbar:hover .nav-item { opacity: 0.5; } .navbar .nav-item:hover, .nav-item.active { opacity: 1; color: #fff; text-shadow: 0 0 15px #3b82f6; } .navbar .nav-item:hover::after, .nav-item.active::after { width: 100%; }
 
-/* 动态指示条 */
-.nav-indicator{
-    position:absolute;
-    bottom:-8px;
-    height:3px;
-    border-radius:10px;
-    background:linear-gradient(90deg,#3b82f6,#9333ea);
-    transition:0.3s;
-}
+/* 第一页发光标题与按钮 */
+.big-title { font-size: clamp(4rem, 10vw, 100px); font-weight: 900; background: linear-gradient(90deg, #3b82f6, #9333ea, #06b6d4, #3b82f6); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s linear infinite; margin-bottom: 10px; letter-spacing: -2px; }
+@keyframes gradientMove { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+.scroll-indicator { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; color: #64748b; font-size: 0.8rem; letter-spacing: 2px; }
+@keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-10px) translateX(-50%); } 60% { transform: translateY(-5px) translateX(-50%); } }
+.start-btn { position: relative; overflow: hidden; }
+.start-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: skewX(-20deg); transition: 0.5s; }
+.start-btn:hover::before { left: 150%; }
 
-/* 渐变文字 */
-.gradient-text{
-    background: linear-gradient(90deg,#3b82f6,#9333ea,#06b6d4);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
+/* 第二/三页通用 */
+#searchBox { box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); color: white; transition: 0.4s; }
+#searchBox:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); background: rgba(255,255,255,0.08); }
+.category-btn { padding: 8px 20px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #94a3b8; font-size: 0.9rem; cursor: pointer; transition: 0.3s; }
+.category-btn:hover, .category-btn.active { background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+.card { background: rgba(20, 22, 28, 0.6); backdrop-filter: blur(12px); padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; width: 100%; }
+.card:hover { transform: translateY(-5px); border-color: rgba(147, 51, 234, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(147, 51, 234, 0.1); }
 
-/* 按钮 */
-.glow-btn{
-    background:linear-gradient(45deg,#3b82f6,#9333ea);
-    box-shadow:0 0 20px rgba(59,130,246,0.6);
-    transition:0.3s;
-}
-.glow-btn:hover{
-    transform:scale(1.1);
-    box-shadow:0 0 40px rgba(147,51,234,1);
-}
+/* ==== 修复：粒子云容器与包裹层占位符 ==== */
+#ai-cloud { position: relative; width: 100%; max-width: 100%; height: 65vh; margin-top: 30px; }
 
-/* 卡片 */
-.card{
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    border-radius:16px;
-    padding:20px;
-    transition:0.4s;
-}
-.card:hover{
-    transform:translateY(-10px);
-    box-shadow:0 0 30px rgba(59,130,246,0.4);
-}
+/* Wrapper 用来保留物理位置（解决极简模式下跳动问题） */
+.particle-wrapper { position: absolute; width: 68px; height: 68px; transform: translate(-50%, -50%); }
 
-/* 标题动画 */
-.big-title{
-    font-size:80px;
-    font-weight:bold;
-    letter-spacing:6px;
-    animation:float 4s ease-in-out infinite;
-}
+.ai-particle { position: absolute; width: 68px; height: 68px; border-radius: 50%; background: rgba(20, 22, 30, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05); cursor: pointer; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; justify-content: center; top: 0; left: 0; transform-origin: center; animation: floatOrb 4s ease-in-out infinite alternate; }
+@keyframes floatOrb { 0% { transform: translateY(-5%); } 100% { transform: translateY(5%); } }
+.ai-particle:hover { box-shadow: 0 0 35px rgba(59, 130, 246, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.2); border-color: #60a5fa; z-index: 40 !important; }
+.icon-state { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); font-weight: bold; font-family: 'Orbitron', sans-serif;}
+.detail-state { opacity: 0; display: none; width: 100%; padding: 20px; text-align: left; flex-direction: column; }
 
-@keyframes float{
-    0%{transform:translateY(0)}
-    50%{transform:translateY(-20px)}
-    100%{transform:translateY(0)}
-}
+/* 展开后变成固定在中央 */
+.ai-particle.expanded { width: 320px; height: auto; border-radius: 20px; background: rgba(15, 17, 24, 0.95); border-color: #9333ea; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(147, 51, 234, 0.4); z-index: 60 !important; animation: none; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; }
+.ai-particle.expanded .icon-state { display: none; } 
+.ai-particle.expanded .detail-state { display: flex; opacity: 1; transition: opacity 0.4s ease 0.2s; }
+.detail-close { position: absolute; top: 12px; right: 15px; color: #64748b; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+.detail-close:hover { color: #fff; }
+.detail-cat { font-size: 0.65rem; color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); background: rgba(192, 132, 252, 0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px;}
+.detail-desc { font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin-bottom: 16px; }
+
+/* =========================================================
+   大模型主页 (Hub Overlay) 专属样式
+========================================================= */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; display: block; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+.light-mode .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); }
+.hub-item { transition: 0.3s; border: 1px solid transparent; }
+.hub-item:hover, .hub-item.active { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); }
+.hub-tag { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.05); }
+.code-mockup { background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; padding: 16px; font-family: monospace; color: #38bdf8; font-size: 0.85rem; position: relative; }
+.code-mockup::before { content: "• • •"; position: absolute; top: 10px; left: 16px; color: #475569; letter-spacing: 2px; font-size: 1.2rem; }
+
+/* =========================================================
+   Light Mode (白天模式)
+========================================================= */
+.light-mode { background-color: #f4f6f9; color: #0f172a; }
+.light-mode .text-white { color: #0f172a !important; }
+.light-mode .text-gray-400 { color: #475569 !important; }
+.light-mode .text-gray-300 { color: #334155 !important; }
+.light-mode .bg-black\/40, .light-mode .bg-white\/5 { background-color: rgba(0,0,0,0.05) !important; }
+.light-mode .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+.light-mode .navbar, .light-mode .card, .light-mode #searchBox, .light-mode .category-btn, .light-mode .ai-particle { background: rgba(255, 255, 255, 0.75) !important; border-color: rgba(0, 0, 0, 0.1) !important; box-shadow: 0 8px 30px rgba(0,0,0,0.05) !important; color: #0f172a !important; }
+.light-mode .ai-particle:hover { box-shadow: 0 8px 30px rgba(37,99,235,0.3) !important; border-color: #3b82f6 !important; }
+.light-mode .ai-particle.expanded { background: rgba(255, 255, 255, 0.98) !important; box-shadow: 0 20px 50px rgba(0,0,0,0.15) !important; }
+.light-mode .detail-desc { color: #475569 !important; }
+.light-mode .nav-item { color: #475569 !important; }
+.light-mode .nav-item:hover, .light-mode .nav-item.active { color: #2563eb !important; text-shadow: none !important;}
+.light-mode .nav-item::after { background: #2563eb !important; box-shadow: none !important;}
+.light-mode .settings-panel { background: rgba(248, 250, 252, 0.95) !important; color: #0f172a !important; }
+.light-mode #hubModalContent { background: rgba(255, 255, 255, 0.95) !important; box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important; }
+.light-mode .hub-sidebar { background: #f8fafc !important; border-color: rgba(0,0,0,0.05) !important; }
+.light-mode .hub-detail-area { background: #ffffff !important; }
+.light-mode .hub-tag { background: #f1f5f9 !important; color: #475569 !important; border-color: #e2e8f0 !important; }
+.light-mode .hub-info-card { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
+
+/* =========================================================
+   Simple Mode (简单模式) - 修复跳动问题
+========================================================= */
+.simple-mode #bg { display: none !important; }
+.simple-mode #ai-cloud { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; align-content: flex-start !important; gap: 20px !important; overflow-y: auto !important; height: 60vh; padding-bottom: 20px; }
+/* wrapper 在简单模式下占据固定空间，变为流式布局 */
+.simple-mode .particle-wrapper { position: relative !important; left: auto !important; top: auto !important; transform: none !important; }
+/* 内部粒子剥离默认位移 */
+.simple-mode .ai-particle { position: absolute !important; animation: none !important; margin: 0; }
+.simple-mode .ai-particle.expanded { box-shadow: 0 0 0 100vw rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.5) !important; z-index: 1000 !important; }
+.light-mode.simple-mode .ai-particle.expanded { box-shadow: 0 0 0 100vw rgba(255,255,255,0.5), 0 20px 50px rgba(0,0,0,0.1) !important; }
 </style>
 </head>
 
 <body>
 
-<div id="tsparticles"></div>
+<canvas id="bg"></canvas>
 
-<!-- ✅ 高级导航（已升级） -->
-<div class="navbar" id="navbar">
-    <a href="#ai" class="nav-item">Explore</a>
-    <a href="#" class="nav-item">Ideas</a>
-    <a href="#" class="nav-item">Works</a>
-    <a href="#" class="nav-item">Lab</a>
-    <a href="#contact" class="nav-item">Contact</a>
-    <div class="nav-indicator" id="indicator"></div>
+<!-- 左上角 Logo -->
+<div class="brand-logo hidden md:flex" onclick="document.getElementById('page1').scrollIntoView()">
+    <div class="brand-icon text-white">AI</div>
+    <span class="text-xl font-black tracking-widest font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300">PIONEER</span>
 </div>
 
-<!-- 第一屏 -->
-<section class="h-screen flex flex-col items-center justify-center text-center px-6 relative z-10">
-    <h1 class="big-title gradient-text mb-6">AI PIONEER</h1>
-    <p class="text-gray-400 mb-8 text-lg">Explore Future · Design Intelligence</p>
-    <a href="#ai" class="glow-btn px-8 py-3 rounded-lg text-lg">Start ↓</a>
+<!-- 右上角设置图标 -->
+<div class="fixed top-[30px] right-[40px] z-[110] cursor-pointer hover:rotate-90 transition-transform duration-500 text-gray-400 hover:text-blue-500 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" onclick="toggleSettings()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.781.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854-.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71-.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+</div>
+
+<!-- 设置抽屉面板 -->
+<div id="settingsOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[190] opacity-0 pointer-events-none transition-opacity duration-300" onclick="toggleSettings()"></div>
+<div id="settingsDrawer" class="settings-panel fixed right-0 top-0 h-full w-80 sm:w-96 bg-[rgba(10,12,18,0.95)] backdrop-blur-2xl border-l border-white/10 z-[200] transform translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
+    <div class="flex justify-between items-center p-6 border-b border-white/10">
+        <h2 class="text-2xl font-bold font-orbitron tracking-wider text-white" data-i18n="settingTitle">SETTINGS</h2>
+        <button onclick="toggleSettings()" class="text-gray-400 hover:text-blue-500 transition text-3xl">&times;</button>
+    </div>
+    <div class="p-6 flex-1 overflow-y-auto space-y-8">
+        <div class="space-y-3">
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="langLabel">Language / 语言设置</label>
+            <select onchange="changeLanguage(this.value)" class="w-full bg-black/40 text-white border border-white/10 rounded-xl p-3 outline-none focus:border-blue-500 transition cursor-pointer">
+                <option value="zh">简体中文</option>
+                <option value="en" selected>English</option>
+                <option value="ja">日本語</option>
+            </select>
+        </div>
+        <div class="space-y-3">
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="themeLabel">Appearance / 主题外观</label>
+            <div class="flex items-center justify-between bg-black/40 border border-white/10 rounded-xl p-4">
+                <div class="flex items-center gap-3 text-white"><span class="text-xl" id="theme-icon">🌙</span><span class="font-medium text-sm" id="theme-text">Dark Mode</span></div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="theme-toggle" class="sr-only peer" onchange="toggleTheme()">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
+            </div>
+        </div>
+        <div class="space-y-3">
+            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest" data-i18n="layoutLabel">Layout Mode / 布局模式</label>
+            <div class="flex items-center justify-between bg-black/40 border border-white/10 rounded-xl p-4">
+                <div class="flex items-center gap-3 text-white"><span class="text-xl">✨</span><div><span class="font-medium text-sm block" id="mode-text">Deep Mode</span><span class="text-xs text-gray-500 block" id="mode-desc">3D Particle Animations</span></div></div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="mode-toggle" class="sr-only peer" onchange="toggleMode()">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 大模型介绍主页 Hub (全屏 Modal) -->
+<div id="hubOverlay" class="fixed inset-0 z-[150] bg-black/70 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500 flex justify-center items-center p-4 sm:p-10 overscroll-contain">
+    <div id="hubModalContent" class="w-full h-full max-w-[1400px] bg-[rgba(15,20,30,0.85)] border border-white/10 rounded-2xl flex overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] relative transform scale-95 transition-transform duration-500">
+        <button onclick="closeHub()" class="absolute top-4 right-6 text-gray-400 hover:text-white text-4xl z-20 transition hover:rotate-90">&times;</button>
+        <div class="w-[30%] min-w-[300px] hub-sidebar border-r border-white/10 flex flex-col bg-black/40">
+            <div class="p-6 border-b border-white/10">
+                <h2 class="text-xl font-bold font-orbitron tracking-widest text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400" data-i18n="hubTitle">AI MATRIX</h2>
+                <input id="hubSearch" type="text" data-i18n-placeholder="hubSearch" placeholder="Search models..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500 transition text-sm">
+            </div>
+            <div id="hubList" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar"></div>
+        </div>
+        <div class="flex-1 hub-detail-area overflow-y-auto custom-scrollbar bg-black/20 p-8 relative">
+            <div id="hubDetailContent" class="max-w-4xl mx-auto opacity-0 transition-opacity duration-500"></div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+
+<nav class="navbar" id="navbar">
+    <a href="#page1" class="nav-item active" data-target="page1" data-i18n="navHome">Home</a>
+    <a href="#page2" class="nav-item" data-target="page2" data-i18n="navSearch">Search</a>
+    <a href="#page3" class="nav-item" data-target="page3" data-i18n="navMatrix">Matrix</a>
+    <a href="#page4" class="nav-item" data-target="page4" data-i18n="navContact">Contact</a>
+</nav>
+
+<!-- PAGE 1 -->
+<section id="page1" class="page-section">
+    <div class="text-center fade-in-up">
+        <h1 class="big-title">AI PIONEER</h1>
+        <p class="text-xl text-gray-400 tracking-[0.3em] uppercase mb-10" data-i18n="subtitle">Future · Design · Intelligence</p>
+        <button onclick="openHub()" class="start-btn inline-block px-10 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_50px_rgba(147,51,234,0.7)] hover:-translate-y-1" data-i18n="startBtn">
+            START EXPLORING
+        </button>
+    </div>
+    <div class="scroll-indicator uppercase" data-i18n="scrollText">Scroll to Explore ↓</div>
 </section>
 
-<!-- 第二屏 -->
-<section id="ai" class="min-h-screen py-24 px-10 relative z-10">
-    <h2 class="text-4xl font-bold text-center mb-16 gradient-text">AI Tools</h2>
+<!-- PAGE 2 -->
+<section id="page2" class="page-section">
+    <div class="w-full max-w-3xl z-20 fade-in-up text-center pt-8">
+        <h2 class="text-3xl font-bold mb-4 tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300" data-i18n="searchTitle">NEURAL SEARCH</h2>
+        <input id="searchBox" data-i18n-placeholder="searchPlaceholder" placeholder="Search AI tools... (e.g. 'Image', 'Code', 'Video', 'GPT')"
+        class="w-full px-8 py-4 rounded-full text-center text-lg">
+    </div>
+    <div id="ai-cloud" class="z-10 fade-in-up"></div>
+</section>
 
-    <div class="grid md:grid-cols-4 gap-8">
-        <div class="card">ChatGPT</div>
-        <div class="card">Claude</div>
-        <div class="card">Gemini</div>
-        <div class="card">Midjourney</div>
-
-        <div class="card">DALL·E</div>
-        <div class="card">Stable Diffusion</div>
-        <div class="card">Runway</div>
-        <div class="card">Pika</div>
-
-        <div class="card">Notion AI</div>
-        <div class="card">Perplexity</div>
-        <div class="card">Cursor</div>
-        <div class="card">Copilot</div>
-
-        <div class="card">Figma AI</div>
-        <div class="card">Leonardo AI</div>
-        <div class="card">HeyGen</div>
-        <div class="card">Synthesia</div>
-
-        <div class="card">ElevenLabs</div>
-        <div class="card">Descript</div>
-        <div class="card">Remove.bg</div>
-        <div class="card">Canva AI</div>
+<!-- PAGE 3 -->
+<section id="page3" class="page-section">
+    <div class="w-full max-w-6xl w-full fade-in-up pt-20">
+        <div class="flex flex-col items-center mb-10">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-cyan-400">🏆</span> <span data-i18n="matrixTitle">Top Ranked Models</span>
+            </h2>
+            <div class="flex flex-wrap gap-4 justify-center" id="category-tabs">
+                <button class="category-btn active" onclick="filterCategory('All')" data-i18n="tabAll">Global Top</button>
+                <button class="category-btn" onclick="filterCategory('LLM')" data-i18n="tabLLM">Chat (LLM)</button>
+                <button class="category-btn" onclick="filterCategory('Image')" data-i18n="tabImage">Image Gen</button>
+                <button class="category-btn" onclick="filterCategory('Video')" data-i18n="tabVideo">Video Gen</button>
+                <button class="category-btn" onclick="filterCategory('Code')" data-i18n="tabCode">Code</button>
+            </div>
+        </div>
+        <div id="ranking-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4"></div>
     </div>
 </section>
 
-<!-- 第三屏 -->
-<section id="contact" class="h-screen flex flex-col items-center justify-center text-center px-6 relative z-10">
-    <h2 class="text-4xl font-bold mb-10 gradient-text">Contact Me</h2>
-
-    <div class="card w-full max-w-md text-lg space-y-4">
-        <p>📱 Phone: 13919648583</p>
-        <p>📧 Email: 13919648583@163.com</p>
+<!-- PAGE 4 -->
+<section id="page4" class="page-section">
+    <div class="fade-in-up text-center bg-black/40 backdrop-blur-md border border-white/10 p-16 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        <h2 class="text-5xl mb-8 font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500" data-i18n="contactTitle">Contact Lab</h2>
+        <div class="flex flex-col gap-6 text-xl text-gray-300 tracking-wider">
+            <div class="flex items-center justify-center gap-4 hover:text-blue-400 transition">
+                <span class="text-2xl">📱</span> +86 139-1964-8583
+            </div>
+            <div class="flex items-center justify-center gap-4 hover:text-blue-400 transition cursor-pointer" onclick="window.location.href='mailto:13919648583@163.com'">
+                <span class="text-2xl">📧</span> 13919648583@163.com
+            </div>
+        </div>
+        <p class="mt-12 text-sm text-gray-600" data-i18n="contactFooter">© 2024 AI Pioneer. Initializing the Future.</p>
     </div>
 </section>
 
-<!-- 粒子 -->
+</div>
+
 <script>
-tsParticles.load("tsparticles", {
-    background: { color: "#0b0f14" },
-    particles: {
-        number: { value: 100 },
-        color: { value: ["#3b82f6","#9333ea","#06b6d4"] },
-        links: {
-            enable: true,
-            color: "#3b82f6",
-            distance: 150
-        },
-        move: { enable: true, speed: 1.2 },
-        size: { value: 2 }
+/* ==========================================
+   多语言支持 (i18n) 字典与逻辑
+========================================== */
+const i18nTranslations = {
+    zh: {
+        navHome: "首页", navSearch: "探索", navMatrix: "矩阵", navContact: "联系",
+        subtitle: "未来 · 设计 · 智能", scrollText: "向下滚动探索 ↓", startBtn: "开始探索",
+        searchTitle: "1000+ AI 神经网络检索", searchPlaceholder: "搜索全球AI工具... (如: '画图', '代码', '视频', 'GPT')",
+        matrixTitle: "顶尖模型排行",
+        tabAll: "全球总榜", tabLLM: "对话模型 (LLM)", tabImage: "图像绘画 (Image)", tabVideo: "视频生成 (Video)", tabCode: "代码开发 (Code)",
+        contactTitle: "联系实验室", contactFooter: "© 2024 AI Pioneer. 初始化未来.",
+        settingTitle: "设置", langLabel: "Language / 语言设置", themeLabel: "Appearance / 主题外观",
+        layoutLabel: "Layout Mode / 布局模式", hubTitle: "AI 矩阵生态", hubSearch: "检索1000+各大模型..."
+    },
+    en: {
+        navHome: "Home", navSearch: "Search", navMatrix: "Matrix", navContact: "Contact",
+        subtitle: "Future · Design · Intelligence", scrollText: "Scroll to Explore ↓", startBtn: "START EXPLORING",
+        searchTitle: "1000+ NEURAL SEARCH", searchPlaceholder: "Search AI tools... (e.g. 'Image', 'Code', 'Video', 'GPT')",
+        matrixTitle: "Top Ranked Models",
+        tabAll: "Global Top", tabLLM: "Chat (LLM)", tabImage: "Image Gen", tabVideo: "Video Gen", tabCode: "Code",
+        contactTitle: "Contact Lab", contactFooter: "© 2024 AI Pioneer. Initializing the Future.",
+        settingTitle: "SETTINGS", langLabel: "Language", themeLabel: "Appearance",
+        layoutLabel: "Layout Mode", hubTitle: "AI MATRIX", hubSearch: "Search 1000+ models..."
+    },
+    ja: {
+        navHome: "ホーム", navSearch: "検索", navMatrix: "マトリックス", navContact: "連絡先",
+        subtitle: "未来 · デザイン · 知能", scrollText: "スクロールして探索 ↓", startBtn: "探索を開始",
+        searchTitle: "1000+ ニューラル検索", searchPlaceholder: "AIツールを検索...（例：'画像', 'コード', '動画', 'GPT'）",
+        matrixTitle: "トップランクモデル",
+        tabAll: "グローバル", tabLLM: "対話 (LLM)", tabImage: "画像生成", tabVideo: "動画生成", tabCode: "コード",
+        contactTitle: "連絡先ラボ", contactFooter: "© 2024 AI Pioneer. 未来を初期化する.",
+        settingTitle: "設定", langLabel: "Language / 言語設定", themeLabel: "Appearance / 外観",
+        layoutLabel: "Layout Mode / レイアウト", hubTitle: "AI マトリックス", hubSearch: "1000+ モデルを検索..."
     }
-});
-
-/* 导航动态指示条 */
-const items = document.querySelectorAll('.nav-item');
-const indicator = document.getElementById('indicator');
-
-items.forEach(item => {
-    item.addEventListener('mouseenter', (e) => {
-        const rect = e.target.getBoundingClientRect();
-        const parentRect = e.target.parentElement.getBoundingClientRect();
-
-        indicator.style.width = rect.width + 'px';
-        indicator.style.left = (rect.left - parentRect.left) + 'px';
-    });
-});
-
-window.onload = () => {
-    const first = items[0];
-    const rect = first.getBoundingClientRect();
-    const parentRect = first.parentElement.getBoundingClientRect();
-
-    indicator.style.width = rect.width + 'px';
-    indicator.style.left = (rect.left - parentRect.left) + 'px';
 };
+
+let currentLang = 'en';
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    const dict = i18nTranslations[lang];
+    if(!dict) return;
+    
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if(dict[key]) el.innerText = dict[key];
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if(dict[key]) el.placeholder = dict[key];
+    });
+
+    const isLight = document.body.classList.contains('light-mode');
+    document.getElementById('theme-text').innerText = isLight ? (lang==='zh'?'浅色模式':lang==='ja'?'ライトモード':'Light Mode') : (lang==='zh'?'深色模式':lang==='ja'?'ダークモード':'Dark Mode');
+    
+    const isSimple = document.body.classList.contains('simple-mode');
+    document.getElementById('mode-text').innerText = isSimple ? (lang==='zh'?'极简模式':lang==='ja'?'シンプルモード':'Simple Mode') : (lang==='zh'?'深度模式':lang==='ja'?'ディープモード':'Deep Mode');
+    document.getElementById('mode-desc').innerText = isSimple ? (lang==='zh'?'干净的网格布局':lang==='ja'?'クリーンなグリッドレイアウト':'Clean Grid Layout') : (lang==='zh'?'3D粒子动画引擎':lang==='ja'?'3Dパーティクルアニメーション':'3D Particle Animations');
+}
+
+/* ==========================================
+   背景设置 (昼夜与模式)
+========================================== */
+let isSettingsOpen = false;
+function toggleSettings() {
+    isSettingsOpen = !isSettingsOpen;
+    const drawer = document.getElementById('settingsDrawer');
+    const overlay = document.getElementById('settingsOverlay');
+    if(isSettingsOpen) { drawer.classList.remove('translate-x-full'); overlay.classList.remove('opacity-0', 'pointer-events-none'); } 
+    else { drawer.classList.add('translate-x-full'); overlay.classList.add('opacity-0', 'pointer-events-none'); }
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+    document.getElementById('theme-text').innerText = isLight ? (currentLang==='zh'?'浅色模式':currentLang==='ja'?'ライトモード':'Light Mode') : (currentLang==='zh'?'深色模式':currentLang==='ja'?'ダークモード':'Dark Mode');
+    
+    scene.fog.color.setHex(isLight ? 0xf4f6f9 : 0x030508);
+    const palettes = isLight ?[0x1e40af, 0x6b21a8, 0x0f766e, 0x334155, 0x4338ca] :[0x3b82f6, 0x9333ea, 0x06b6d4, 0xffffff, 0x4f46e5];
+    const colorAttr = particlesMesh.geometry.attributes.color;
+    for(let i = 0; i < particleCount; i++) { color.setHex(palettes[Math.floor(Math.random() * palettes.length)]); colorAttr.setXYZ(i, color.r, color.g, color.b); }
+    colorAttr.needsUpdate = true;
+    material.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
+}
+
+function toggleMode() {
+    document.body.classList.toggle('simple-mode');
+    const isSimple = document.body.classList.contains('simple-mode');
+    document.getElementById('mode-text').innerText = isSimple ? (currentLang==='zh'?'极简模式':currentLang==='ja'?'シンプルモード':'Simple Mode') : (currentLang==='zh'?'深度模式':currentLang==='ja'?'ディープモード':'Deep Mode');
+    document.getElementById('mode-desc').innerText = isSimple ? (currentLang==='zh'?'干净的网格布局':currentLang==='ja'?'クリーンなグリッドレイアウト':'Clean Grid Layout') : (currentLang==='zh'?'3D粒子动画引擎':currentLang==='ja'?'3Dパーティクルアニメーション':'3D Particle Animations');
+    if(isSimple) cancelAnimationFrame(animationFrameId); else animate();
+}
+
+const canvas = document.getElementById('bg');
+const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x030508, 0.04);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); camera.position.z = 15;
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const particleCount = 4500; const geometry = new THREE.BufferGeometry();
+const posArray = new Float32Array(particleCount * 3); const colorArray = new Float32Array(particleCount * 3);
+const color = new THREE.Color(); const palettes =[0x3b82f6, 0x9333ea, 0x06b6d4, 0xffffff, 0x4f46e5];
+
+for(let i = 0; i < particleCount; i++) {
+    posArray[i * 3] = (Math.random() - 0.5) * 50; posArray[i * 3 + 1] = (Math.random() - 0.5) * 50; posArray[i * 3 + 2] = (Math.random() - 0.5) * 50;
+    color.setHex(palettes[Math.floor(Math.random() * palettes.length)]);
+    colorArray[i * 3] = color.r; colorArray[i * 3 + 1] = color.g; colorArray[i * 3 + 2] = color.b;
+}
+geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3)); geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+const material = new THREE.PointsMaterial({ size: 0.06, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.8 });
+const particlesMesh = new THREE.Points(geometry, material); scene.add(particlesMesh);
+
+let mouseX = 0, mouseY = 0, animationFrameId;
+document.addEventListener('mousemove', (e) => { mouseX = (e.clientX - window.innerWidth/2)*0.003; mouseY = (e.clientY - window.innerHeight/2)*0.003; });
+const clock = new THREE.Clock();
+function animate() {
+    animationFrameId = requestAnimationFrame(animate);
+    const elapsedTime = clock.getElapsedTime();
+    particlesMesh.rotation.y = elapsedTime * 0.02; particlesMesh.rotation.x = elapsedTime * 0.01;
+    const positions = particlesMesh.geometry.attributes.position.array;
+    for(let i = 0; i < particleCount; i++) { positions[i * 3 + 2] += 0.015; if(positions[i * 3 + 2] > 20) positions[i * 3 + 2] = -30; }
+    particlesMesh.geometry.attributes.position.needsUpdate = true;
+    camera.position.x += (mouseX * 5 - camera.position.x) * 0.05; camera.position.y += (-mouseY * 5 - camera.position.y) * 0.05; camera.lookAt(scene.position);
+    renderer.render(scene, camera);
+}
+animate();
+window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+/* ==========================================
+   AI 数据库 (手写42款顶配模型 + 动态扩展至1000款)
+========================================== */
+const massiveAIData =[
+    {name:"ChatGPT", cat:"LLM", company:"OpenAI", direction:"全能型对话助理、代码编写、逻辑推理", features:["多模态交互(GPT-4o)","极强上下文记忆","官方插件与代码解释器","语音视觉融合"], prompts:["帮我写一段Python爬虫代码，抓取特定网页内容。","用莎士比亚的风格向孩子解释什么是量子力学。"], showcaseType:"code", showcaseText:"def generate_future():\n    ai = OpenAI(model='gpt-4o')\n    world = ai.create(target='utopia')\n    return world\n\n# Terminal Output: \n# [SUCCESS] System initialized...", keywords:"聊天 对话 问答 写作 翻译 编程 gpt", desc:"OpenAI开发的现象级大模型，支持长记忆与多模态。", clicks:25000, url:"https://chat.openai.com"},
+    {name:"Midjourney", cat:"Image", company:"Midjourney Inc.", direction:"商业插画、摄影级概念图、UI设计", features:["V6超高画质","极强语义还原","局部重绘(Vary)","风格化极值控制"], prompts:["A futuristic cyberpunk city, neon lights, 8k resolution, photorealistic --ar 16:9","Cute cat reading a book in a magical library, 3d render, pixar style --v 6.0"], showcaseType:"image", showcaseImages:["https://images.unsplash.com/photo-1678911820864-e2c567c655d7?w=600&q=80","https://images.unsplash.com/photo-1682687982501-1e5898cb8e4f?w=600&q=80"], keywords:"画图 图像 绘画 设计 生图", desc:"目前全球画质最高、艺术感最强的AI绘画引擎。", clicks:24800, url:"https://midjourney.com"},
+    {name:"Claude 3", cat:"LLM", company:"Anthropic", direction:"超长文本分析、严谨学术论文撰写、数据整理", features:["Opus级超越GPT4逻辑","20万字超长上下文","代码与JSON强制输出","极低的安全幻觉"], prompts:["分析附件中的100页财报，提取出Q3季度的核心增长点。","帮我将以下非结构化文本转换为格式化的JSON数据。"], showcaseType:"code", showcaseText:"{\n  \"model\": \"claude-3-opus\",\n  \"status\": \"processing_document\",\n  \"tokens_analyzed\": 154200,\n  \"insights\":[\"Revenue up 25%\", \"Cost reduced\"]\n}", keywords:"聊天 逻辑 写作 长文本 分析", desc:"Anthropic推出的强力AI，以极强的逻辑推理和长文本分析著称。", clicks:24200, url:"https://claude.ai"},
+    {name:"Sora", cat:"Video", company:"OpenAI", direction:"物理世界模拟、高清影视生成、一镜到底", features:["长达60秒单视频","极强物理连贯性","复杂场景多角度运镜","极高色彩保真度"], prompts:["A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage.","A movie trailer featuring the adventures of the 30 year old space man wearing a red wool knitted motorcycle helmet."], showcaseType:"image", showcaseImages:["https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80","https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80"], keywords:"视频 影视 动画 动图", desc:"OpenAI物理世界模拟器，根据文本生成60秒逼真视频。", clicks:26000, url:"https://openai.com/sora"},
+    {name:"Cursor", cat:"Code", company:"Anysphere", direction:"全栈软件开发、代码重构、Bug修复", features:["Cmd+K 内联生成","全代码库上下文感知","基于GPT-4与Claude3","一键Debug排错"], prompts:["@Codebase Explain how the authentication flow works here.","Refactor this component to use React Hooks and Tailwind CSS."], showcaseType:"code", showcaseText:"// Cursor Inline Edit\nfunction handleAuth() {\n  // AI generated implementation\n  const token = await jwt.sign({ user: id }, SECRET);\n  return res.status(200).json({ success: true, token });\n}", keywords:"代码 编程 开发 写代码 程序员", desc:"基于大模型深度融合重构代码库的划时代AI编辑器。", clicks:22400, url:"https://cursor.sh"},
+    {name:"Kimi", cat:"LLM", company:"Moonshot AI", direction:"国产高效搜索、几十万字长文精读", features:["支持200万字输入","极速联网检索","无缝读取PDF/Word","国产最优中文理解"], prompts:["总结这份《2024年人工智能发展白皮书》的核心观点。","搜索最近关于SpaceX星舰发射的新闻并做个梳理。"], showcaseType:"text", showcaseText:"[Kimi 联网检索完毕]\n根据最新资料整理：\n1. 核心观点：生成式AI正在重塑各行各业的生产力...\n2. 投资趋势：算力芯片与基础大模型仍是主战场...", keywords:"聊天 文档 总结 阅读 国产", desc:"月之暗面科技打造，极擅长超长文档阅读和资料总结。", clicks:21000, url:"https://kimi.moonshot.cn"},
+    {name:"DeepSeek", cat:"LLM", keywords:"代码 逻辑 深度求索 国产 免费", desc:"国产高性价比大模型，代码与逻辑推理能力极其出色。", clicks:23500, url:"https://chat.deepseek.com"},
+    {name:"Gemini", cat:"LLM", keywords:"聊天 谷歌 视频分析 多模态", desc:"Google原生多模态大模型，深度整合Google生态。", clicks:22000, url:"https://gemini.google.com"},
+    {name:"豆包", cat:"LLM", keywords:"字节跳动 聊天 语音 插件", desc:"字节跳动旗下的大模型AI助手，提供优质语音交互和丰富插件。", clicks:18000, url:"https://www.doubao.com"},
+    {name:"通义千问", cat:"LLM", keywords:"阿里 聊天 开源 编程", desc:"阿里云自主研发的大语言模型，开源社区影响力极大。", clicks:17900, url:"https://tongyi.aliyun.com"},
+    {name:"文心一言", cat:"LLM", keywords:"百度 聊天 中文", desc:"百度推出的知识增强大语言模型，全面理解中文环境。", clicks:17500, url:"https://yiyan.baidu.com"},
+    {name:"智谱清言", cat:"LLM", keywords:"清华 聊天 GLM 数据分析", desc:"基于GLM基座模型，具备强大的文档与数据处理能力。", clicks:16200, url:"https://chatglm.cn"},
+    {name:"腾讯混元", cat:"LLM", keywords:"腾讯 聊天 助手", desc:"腾讯研发的大模型，深度赋能会议、文档等多重场景。", clicks:15800, url:"https://hunyuan.tencent.com"},
+    {name:"百川大模型", cat:"LLM", keywords:"百川 聊天 医疗 搜索", desc:"由王小川创办，融合搜索与大模型底座，精准度高。", clicks:14000, url:"https://www.baichuan-ai.com"},
+    {name:"零一万物", cat:"LLM", keywords:"Yi 聊天 效率", desc:"李开复带队打造的Yi系列模型，处理长文本游刃有余。", clicks:13500, url:"https://www.lingyiwanwu.com"},
+    {name:"Perplexity", cat:"LLM", keywords:"搜索 问答 查资料", desc:"面向未来的AI搜索引擎，直接为你总结答案并附上精准来源。", clicks:19500, url:"https://perplexity.ai"},
+    {name:"Groq", cat:"LLM", keywords:"极速 聊天 芯片", desc:"采用LPU专属芯片，提供不可思议的极致生成速度。", clicks:12500, url:"https://groq.com"},
+    {name:"Poe", cat:"LLM", keywords:"聚合 聊天 机器人", desc:"集成数十种顶尖大模型的聚合对话平台。", clicks:15000, url:"https://poe.com"},
+    {name:"Coze", cat:"LLM", keywords:"扣子 字节 智能体 Bot", desc:"字节推出的下一代AI Bot搭建平台，零代码定制AI。", clicks:18500, url:"https://www.coze.cn"},
+    {name:"Pi", cat:"LLM", keywords:"陪伴 聊天 语音 心理", desc:"Inflection AI打造的最具人情味和高情商的聊天机器人。", clicks:11000, url:"https://pi.ai"},
+    {name:"Stable Diffusion", cat:"Image", keywords:"画图 绘画 图像 开源", desc:"最强大的开源AI绘画模型，支持ControlNet精准控制。", clicks:22500, url:"https://stability.ai"},
+    {name:"DALL·E 3", cat:"Image", keywords:"画图 图像 openai 设计", desc:"OpenAI出品，极致准确地还原复杂文本提示词。", clicks:19000, url:"https://openai.com/dall-e-3"},
+    {name:"Leonardo.ai", cat:"Image", keywords:"画图 设计 游戏 资产", desc:"极受设计师和游戏开发者欢迎的高质量生图平台。", clicks:17400, url:"https://leonardo.ai"},
+    {name:"Adobe Firefly", cat:"Image", keywords:"画图 PS 设计 商业", desc:"Adobe推出的版权安全AI模型，完美融合入Photoshop。", clicks:18100, url:"https://firefly.adobe.com"},
+    {name:"Fooocus", cat:"Image", keywords:"画图 开源 傻瓜 极简", desc:"简化版的SD生图工具，不需要复杂调参即可出大片。", clicks:12800, url:"https://github.com/lllyasviel/Fooocus"},
+    {name:"Canva", cat:"Image", keywords:"设计 海报 PPT 办公", desc:"内置海量AI魔法工具，一键生成海报与设计素材。", clicks:21900, url:"https://www.canva.com"},
+    {name:"Civitai", cat:"Image", keywords:"模型 C站 绘画 Lora", desc:"全球最大的AI绘画开源模型与Lora分享社区。", clicks:18900, url:"https://civitai.com"},
+    {name:"妙鸭相机", cat:"Image", keywords:"写真 摄影 人像 换脸", desc:"现象级的AI写真小程序，只需上传照片即可生成影楼级写真。", clicks:15000, url:"https://miaoya.ai"},
+    {name:"Krea.ai", cat:"Image", keywords:"画图 实时 放大", desc:"主打实时生图和极致的AI图像放大与细节增强引擎。", clicks:13200, url:"https://www.krea.ai"},
+    {name:"Magnific", cat:"Image", keywords:"画图 放大 细节", desc:"号称魔法般的AI图像放大器，能凭空增加极其惊人的细节。", clicks:14500, url:"https://magnific.ai"},
+    {name:"Runway", cat:"Video", keywords:"视频 影视 特效", desc:"Gen-2视频生成领域的先驱，支持文本生视频及后期编辑。", clicks:21300, url:"https://runwayml.com"},
+    {name:"Pika", cat:"Video", keywords:"视频 动画 二次元", desc:"极其易用的AI视频生成工具，擅长3D动画和二次元风格。", clicks:19500, url:"https://pika.art"},
+    {name:"Luma Dream", cat:"Video", keywords:"视频 影视 3D", desc:"高质量AI视频生成新星，运镜与物理动态极具真实感。", clicks:18200, url:"https://lumalabs.ai/dream-machine"},
+    {name:"Kling (可灵)", cat:"Video", keywords:"视频 快手 影视 国产", desc:"快手自研的国产视频大模型，物理特性和时长震撼业界。", clicks:17900, url:"https://kling.kuaishou.com"},
+    {name:"Vidu", cat:"Video", keywords:"视频 生数 国产", desc:"生数科技发布的一键生成高清长视频大模型。", clicks:14400, url:"https://www.vidu.studio"},
+    {name:"智谱清影", cat:"Video", keywords:"视频 智谱 国产 动画", desc:"智谱AI推出的清影视频大模型，生成速度极快。", clicks:15100, url:"https://chatglm.cn/video"},
+    {name:"Copilot", cat:"Code", keywords:"编程 代码 补全 微软 github", desc:"微软与GitHub联合打造的代码补全神器，显著提升开发效率。", clicks:23900, url:"https://github.com/features/copilot"},
+    {name:"Devin", cat:"Code", keywords:"编程 程序员 智能体 agent", desc:"全球首个完全自治的AI软件工程师智能体。", clicks:19200, url:"https://cognition-labs.com"},
+    {name:"v0", cat:"Code", keywords:"前端 UI 代码 vercel", desc:"Vercel推出的只需自然语言即可生成精美React UI组件的工具。", clicks:18100, url:"https://v0.dev"},
+    {name:"Bolt.new", cat:"Code", keywords:"全栈 代码 部署 前端", desc:"直接在浏览器中利用AI从零构建并部署全栈应用的平台。", clicks:14500, url:"https://bolt.new"},
+    {name:"Codeium", cat:"Code", keywords:"编程 代码 补全 免费", desc:"极其强大的免费AI代码补全辅助工具。", clicks:16900, url:"https://codeium.com"},
+    {name:"Phind", cat:"Code", keywords:"编程 搜索 程序员", desc:"专为开发者打造的AI搜索引擎，直击技术痛点。", clicks:15500, url:"https://www.phind.com"},
+    {name:"Suno", cat:"All", keywords:"音乐 唱歌 写歌 音频", desc:"颠覆音乐行业的AI生成工具，只需歌词即可生成完整歌曲。", clicks:22100, url:"https://suno.com"},
+    {name:"Udio", cat:"All", keywords:"音乐 写歌 音频", desc:"音质惊人的AI音乐生成引擎，能驾驭各种复杂曲风。", clicks:19300, url:"https://www.udio.com"},
+    {name:"ElevenLabs", cat:"All", keywords:"配音 声音 语音 播客", desc:"全球拟真度最高的AI语音合成和声音克隆平台。", clicks:20900, url:"https://elevenlabs.io"},
+    {name:"Notion AI", cat:"All", keywords:"办公 笔记 写作 总结", desc:"无缝集成在Notion笔记中的AI助手，帮你润色工作内容。", clicks:20800, url:"https://notion.so"}
+];
+
+/* 动态扩展至 1000+ 工具 (双重图标兜底机制保证图标不为空) */
+const prefixes =["智绘", "灵码", "影匠", "文心", "魔音", "画境", "CodeMate", "VidGen", "DesignBot", "DeepText", "PixelForge", "StoryCraft", "AI Studio", "Nova", "Flux", "Synth", "Neural", "Cortex"];
+const suffixes =["Pro", "Max", "Lite", "Ultra", "X", "Studio", "AI", "助手", "大师", "工坊", "引擎", "实验室"];
+const nameThemes =["Midjourney", "DALL·E", "Runway", "Sora", "Copilot", "豆包", "文心", "千问", "星火", "Claude", "Gemini", "SD", "Krea", "Pika", "Gen-2", "Leonardo", "Ideogram", "Cursor", "Bolt", "可灵", "即梦", "Liblib"];
+const CAPABILITIES =["生图", "视频", "文字", "代码", "设计"];
+
+function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+for (let i = 1; i <= 960; i++) {
+    let name = "";
+    if (i < 200) {
+        const base = randomItem(nameThemes);
+        const suffix = Math.random() > 0.6 ? ` ${randomItem(suffixes)}` : "";
+        name = `${base}${suffix} - V${Math.floor(Math.random()*10)}`;
+    } else {
+        name = `${randomItem(prefixes)} ${randomItem(suffixes)} ${i}`;
+    }
+
+    const shuffled = [...CAPABILITIES].sort(() => 0.5 - Math.random());
+    const primaryCap = shuffled[0];
+
+    let cat = "All", keywords = shuffled.join(" "), desc = "";
+    if (primaryCap === "生图") { cat = "Image"; keywords += " 画图 图像 绘画 设计 生图"; desc = "强力图像生成引擎，支持多元风格转换。"; }
+    else if (primaryCap === "视频") { cat = "Video"; keywords += " 视频 影视 动画 动图"; desc = "智能视频生成与编辑，风格化转绘与运镜支持。"; }
+    else if (primaryCap === "文字") { cat = "LLM"; keywords += " 聊天 对话 问答 写作 翻译"; desc = "强大语言模型，写作、摘要、逻辑对话样样精通。"; }
+    else if (primaryCap === "代码") { cat = "Code"; keywords += " 代码 编程 开发 写代码 程序员"; desc = "代码辅助、自动补全、排错及项目生成自动化。"; }
+    else if (primaryCap === "设计") { cat = "All"; keywords += " 设计 办公 UI 自动化"; desc = "全能设计与效率助手，生成多模态品牌与办公物料。"; }
+
+    massiveAIData.push({
+        name: name, cat: cat, company: "Global Tech AI", direction: desc,
+        features:["跨模态任务处理引擎", "极简的高效响应交互设计", "卓越的模型渲染与生成稳定表现"],
+        prompts:["请帮我总结核心要点并列出操作清单。", "根据特定需求生成一份完善的解决方案。"],
+        showcaseType: "code",
+        showcaseText: `System ready for [${name}]...\nGenerating optimized outputs based on query parameters.\n> SUCCESS: Render complete.`,
+        keywords: keywords, desc: desc, clicks: Math.floor(Math.random() * 8000) + 500, url: "https://example.com"
+    });
+}
+
+let tools = massiveAIData;
+
+/* ==========================================
+   大模型矩阵主页 (Hub Overlay) 逻辑
+========================================== */
+function openHub() {
+    const overlay = document.getElementById('hubOverlay');
+    const content = document.getElementById('hubModalContent');
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => content.classList.remove('scale-95'), 50);
+    renderHubList(''); 
+    if(tools.length > 0) selectHubItem(tools[0]);
+}
+
+function closeHub() {
+    const overlay = document.getElementById('hubOverlay');
+    const content = document.getElementById('hubModalContent');
+    content.classList.add('scale-95');
+    setTimeout(() => overlay.classList.add('opacity-0', 'pointer-events-none'), 300);
+}
+
+document.getElementById('hubSearch').addEventListener('input', (e) => {
+    renderHubList(e.target.value.toLowerCase().trim());
+});
+
+function renderHubList(query) {
+    const list = document.getElementById('hubList');
+    list.innerHTML = "";
+    let filtered = tools.filter(t => t.name.toLowerCase().includes(query) || (t.keywords && t.keywords.toLowerCase().includes(query)));
+    let sorted = filtered.sort((a,b) => b.clicks - a.clicks).slice(0, 300); 
+    
+    sorted.forEach((t, index) => {
+        let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
+        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=64`;
+        let imgSrc = (domain === 'example.com' || domain === '') ? fallbackUrl : iconUrl;
+        
+        let d = document.createElement("div");
+        d.className = "hub-item flex items-center gap-4 p-3 rounded-xl cursor-pointer";
+        d.innerHTML = `
+            <div class="text-gray-500 font-bold w-4 text-center text-sm">${index + 1}</div>
+            <img src="${imgSrc}" onerror="this.onerror=null; this.src='${fallbackUrl}';" class="w-10 h-10 rounded-full bg-white/10 p-1 object-contain">
+            <div>
+                <h4 class="text-white font-bold text-sm">${t.name}</h4>
+                <p class="text-xs text-gray-400">🔥 ${(t.clicks/1000).toFixed(1)}k uses</p>
+            </div>
+        `;
+        d.onclick = () => {
+            document.querySelectorAll('.hub-item').forEach(el => el.classList.remove('active', 'bg-blue-500/20'));
+            d.classList.add('active', 'bg-blue-500/20');
+            selectHubItem(t);
+        };
+        list.appendChild(d);
+    });
+}
+
+function selectHubItem(t) {
+    const detailBox = document.getElementById('hubDetailContent');
+    detailBox.style.opacity = 0; 
+    
+    setTimeout(() => {
+        let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
+        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=128`;
+        let imgSrc = (domain === 'example.com' || domain === '') ? fallbackUrl : iconUrl;
+        
+        let html = `
+            <div class="flex items-start justify-between mb-8 pb-8 border-b border-white/10">
+                <div class="flex items-center gap-6">
+                    <img src="${imgSrc}" onerror="this.onerror=null; this.src='${fallbackUrl}';" class="w-24 h-24 rounded-2xl bg-white/5 p-2 object-contain shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <div>
+                        <h1 class="text-4xl font-bold text-white mb-2 tracking-wide hub-title">${t.name}</h1>
+                        <p class="text-gray-400 mb-3 text-lg">By <span class="text-blue-400 font-semibold">${t.company || 'Global Tech AI'}</span></p>
+                        <div class="flex gap-2">
+                            <span class="hub-tag">${t.cat}</span>
+                            <span class="hub-tag">🔥 Trending</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="window.open('${t.url}', '_blank')" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.4)] transition hover:-translate-y-1">Launch Web</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">🎯 核心方向</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">${t.direction || t.desc}</p>
+                </div>
+                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">⚙️ 特色功能</h3>
+                    <ul class="text-gray-300 text-sm space-y-2">
+                        ${(t.features ||["跨模态任务处理引擎", "极简的高效响应交互设计", "卓越的模型稳定表现"]).map(f => `<li>• ${f}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">💡 优质提示词参考</h3>
+                    <div class="space-y-3">
+                        ${(t.prompts ||["请帮我总结核心要点并列出操作清单。", "根据特定需求生成一份完善的解决方案。"]).map(p => `
+                            <div class="bg-white/5 p-3 rounded-lg border border-white/5 text-gray-300 text-xs italic">"${p}"</div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">✨ 实际成果演示</h3>
+                    <div class="flex-1 flex items-center justify-center">
+        `;
+        
+        if(t.showcaseType === 'image' && t.showcaseImages) {
+            html += `<div class="flex gap-2 overflow-hidden rounded-xl">${t.showcaseImages.map(img => `<img src="${img}" class="w-1/2 object-cover hover:scale-110 transition duration-500">`).join('')}</div>`;
+        } else {
+            html += `<div class="code-mockup w-full whitespace-pre-wrap leading-relaxed mt-2">${t.showcaseText || "System ready...\nAwaiting prompt execution.\n> SUCCESS"}</div>`;
+        }
+        
+        html += `</div></div></div>`;
+        
+        detailBox.innerHTML = html;
+        detailBox.style.opacity = 1;
+    }, 200);
+}
+
+/* ==========================================
+   全网图标分布渲染 (Page 2) - 修复简单模式下的乱跳问题
+========================================== */
+function renderCloud(list) {
+    const box = document.getElementById("ai-cloud"); box.innerHTML = "";
+    if(list.length === 0) return;
+    let displayList = list.slice(0, 60); let total = displayList.length;
+    let screenAspect = window.innerWidth / (window.innerHeight * 0.65);
+    if(screenAspect < 1) screenAspect = 1;
+    let cols = Math.max(1, Math.ceil(Math.sqrt(total * screenAspect * 1.3))); 
+    let rows = Math.max(1, Math.ceil(total / cols));
+
+    displayList.forEach((t, i) => {
+        // 创建外层 Wrapper，用于在简单模式下充当占位符，防止乱跳
+        let w = document.createElement("div"); 
+        w.className = "particle-wrapper";
+        
+        // 创建实际的粒子
+        let d = document.createElement("div"); 
+        d.className = "ai-particle group";
+        
+        // 双重容错图标渲染逻辑
+        let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
+        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=128`;
+        let imgSrc = (domain === 'example.com' || domain === '') ? fallbackUrl : iconUrl;
+
+        d.innerHTML = `
+            <div class="icon-state"><img src="${imgSrc}" onerror="this.onerror=null; this.src='${fallbackUrl}';" class="w-[60%] h-[60%] object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"></div>
+            <div class="detail-state">
+                <span class="detail-close">&times;</span>
+                <h3 class="font-bold text-white text-xl mb-1">${t.name}</h3>
+                <div><span class="detail-cat">${t.cat === 'All' ? 'Tool' : t.cat}</span></div>
+                <p class="detail-desc">${t.desc}</p>
+                <button class="launch-btn w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 text-white py-2 rounded-lg text-sm font-bold transition">Launch Matrix</button>
+            </div>
+        `;
+        
+        let col = i % cols; let row = Math.floor(i / cols); let cellWidth = 100 / cols; let cellHeight = 100 / rows;
+        let jitterX = (Math.random() - 0.5) * (cellWidth * 0.8); let jitterY = (Math.random() - 0.5) * (cellHeight * 0.8);
+        let leftPos = Math.max(4, Math.min(96, (col * cellWidth) + (cellWidth / 2) + jitterX));
+        let topPos = Math.max(8, Math.min(92, (row * cellHeight) + (cellHeight / 2) + jitterY));
+
+        d.style.animationDelay = `${Math.random() * 4}s`; 
+        w.style.left = leftPos + "%"; 
+        w.style.top = topPos + "%";
+
+        d.onclick = (e) => { 
+            if(!d.classList.contains('expanded')) { 
+                document.querySelectorAll('.ai-particle.expanded').forEach(el => el.classList.remove('expanded')); 
+                d.classList.add('expanded'); 
+            }
+        };
+        d.querySelector('.detail-close').onclick = (e) => { e.stopPropagation(); d.classList.remove('expanded'); };
+        d.querySelector('.launch-btn').onclick = (e) => { e.stopPropagation(); window.open(t.url, '_blank'); };
+        
+        w.appendChild(d);
+        box.appendChild(w);
+    });
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('.ai-particle') && !e.target.closest('.start-btn')) document.querySelectorAll('.ai-particle.expanded').forEach(el => el.classList.remove('expanded')); });
+document.getElementById('searchBox').addEventListener('input', (e) => { let v = e.target.value.toLowerCase().trim(); if(v === "") renderCloud(tools); else { let filtered = tools.filter(t => t.name.toLowerCase().includes(v) || (t.cat !== 'All' && t.cat.toLowerCase().includes(v)) || (t.keywords && t.keywords.toLowerCase().includes(v))); renderCloud(filtered); }});
+
+/* ==========================================
+   排行榜渲染 (Page 3)
+========================================== */
+function createCard(t) {
+    let d = document.createElement("div"); d.className = "card fade-in-up visible";
+    d.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl text-white font-bold truncate">${t.name}</h3><span class="text-xs text-purple-300 bg-purple-500/20 px-2 py-1 rounded-md">🔥 ${(t.clicks/1000).toFixed(1)}k</span>
+        </div>
+        <p class="text-xs text-gray-400 mb-4">${t.desc.substring(0, 36)}...</p>
+        <button class="w-full bg-white/5 hover:bg-blue-600 border border-white/10 text-white py-2 rounded-lg text-sm font-semibold transition">Launch</button>
+    `;
+    d.querySelector("button").onclick = () => window.open(t.url, '_blank'); return d;
+}
+function filterCategory(cat) {
+    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active');
+    let filtered = cat === 'All' ? tools : tools.filter(t => t.cat === cat); let r = filtered.sort((a,b) => b.clicks - a.clicks).slice(0, 8); 
+    let box = document.getElementById("ranking-grid"); box.innerHTML = ""; r.forEach(t => box.appendChild(createCard(t)));
+}
+window.onload = () => { renderCloud(tools); filterCategory('All'); changeLanguage('en'); /* 初始化为英文，防止乱码闪烁 */ };
+
+/* ==========================================
+   滚动动画
+========================================== */
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting) {
+            const animates = entry.target.querySelectorAll('.fade-in-up');
+            animates.forEach((el, index) => { setTimeout(() => el.classList.add('visible'), index * 100); });
+            const id = entry.target.id;
+            document.querySelectorAll('.nav-item').forEach(nav => { nav.classList.remove('active'); if(nav.getAttribute('data-target') === id) nav.classList.add('active'); });
+        }
+    });
+}, { threshold: 0.5 });
+document.querySelectorAll('.page-section').forEach(section => observer.observe(section));
+document.querySelectorAll('.nav-item').forEach(anchor => { anchor.addEventListener('click', function (e) { e.preventDefault(); document.getElementById(this.getAttribute('data-target')).scrollIntoView({ behavior: 'smooth' }); }); });
 </script>
 
 </body>
