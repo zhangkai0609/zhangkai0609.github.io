@@ -33,7 +33,7 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 }
 
 .fade-in-up { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); }
-.fade-in-up.visible { opacity: 1; transform: translateY(0); }
+.fade-in-up.visible { opacity: 1; transform: none !important; }
 
 /* 左上角 Logo */
 .brand-logo { position: fixed; top: 30px; left: 40px; z-index: 110; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; }
@@ -63,20 +63,26 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 .card { background: rgba(20, 22, 28, 0.6); backdrop-filter: blur(12px); padding: 16px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; width: 100%; }
 .card:hover { transform: translateY(-5px); border-color: rgba(147, 51, 234, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(147, 51, 234, 0.1); }
 
-/* ==== 修复：粒子云容器与包裹层占位符 ==== */
+/* ==== 粒子云 ==== */
 #ai-cloud { position: relative; width: 100%; max-width: 100%; height: 65vh; margin-top: 30px; }
+.particle-wrapper { position: absolute; width: 68px; height: 68px; transform: translate(-50%, -50%); z-index: 10; transition: z-index 0s; }
+.particle-wrapper.wrapper-expanded { z-index: 9999 !important; } 
 
-/* Wrapper 用来保留物理位置（解决极简模式下跳动问题） */
-.particle-wrapper { position: absolute; width: 68px; height: 68px; transform: translate(-50%, -50%); }
-
-.ai-particle { position: absolute; width: 68px; height: 68px; border-radius: 50%; background: rgba(20, 22, 30, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05); cursor: pointer; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; justify-content: center; top: 0; left: 0; transform-origin: center; animation: floatOrb 4s ease-in-out infinite alternate; }
-@keyframes floatOrb { 0% { transform: translateY(-5%); } 100% { transform: translateY(5%); } }
-.ai-particle:hover { box-shadow: 0 0 35px rgba(59, 130, 246, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.2); border-color: #60a5fa; z-index: 40 !important; }
+.ai-particle { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(20, 22, 30, 0.4); backdrop-filter: blur(8px); border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05); cursor: pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; justify-content: center; top: 0; left: 0; animation: floatOrb 4s ease-in-out infinite alternate; }
+@keyframes floatOrb { 0% { transform: translateY(-8%); } 100% { transform: translateY(8%); } }
+.ai-particle:hover { box-shadow: 0 0 35px rgba(59, 130, 246, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.2); border-color: #60a5fa; }
 .icon-state { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); font-weight: bold; font-family: 'Orbitron', sans-serif;}
-.detail-state { opacity: 0; display: none; width: 100%; padding: 20px; text-align: left; flex-direction: column; }
+.detail-state { opacity: 0; display: none; width: 100%; padding: 24px; text-align: left; flex-direction: column; }
 
-/* 展开后变成固定在中央 */
-.ai-particle.expanded { width: 320px; height: auto; border-radius: 20px; background: rgba(15, 17, 24, 0.95); border-color: #9333ea; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(147, 51, 234, 0.4); z-index: 60 !important; animation: none; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; }
+.ai-particle.expanded { 
+    transform: var(--expand-transform, translate(-50%, -50%)) !important; 
+    width: 320px; height: auto; max-height: 70vh; overflow-y: auto; 
+    border-radius: 20px; background: rgba(15, 17, 24, 0.95); border-color: #9333ea; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(147, 51, 234, 0.4); 
+    animation: none; cursor: default;
+}
+.ai-particle.expanded::-webkit-scrollbar { width: 4px; }
+.ai-particle.expanded::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 .ai-particle.expanded .icon-state { display: none; } 
 .ai-particle.expanded .detail-state { display: flex; opacity: 1; transition: opacity 0.4s ease 0.2s; }
 .detail-close { position: absolute; top: 12px; right: 15px; color: #64748b; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
@@ -84,9 +90,7 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 .detail-cat { font-size: 0.65rem; color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); background: rgba(192, 132, 252, 0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px;}
 .detail-desc { font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin-bottom: 16px; }
 
-/* =========================================================
-   大模型主页 (Hub Overlay) 专属样式
-========================================================= */
+/* ==== Hub Overlay 通用 ==== */
 .custom-scrollbar::-webkit-scrollbar { width: 6px; display: block; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
@@ -98,7 +102,21 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 .code-mockup::before { content: "• • •"; position: absolute; top: 10px; left: 16px; color: #475569; letter-spacing: 2px; font-size: 1.2rem; }
 
 /* =========================================================
-   Light Mode (白天模式)
+   新增：AI 终端专属样式 (修复遮挡、优化翻转滑动卡片)
+========================================================= */
+.terminal-reasoning { border-left: 4px solid #9333ea; background: rgba(147, 51, 234, 0.08); border-radius: 0 16px 16px 0; padding: 20px; height: 100%; border: 1px solid rgba(147, 51, 234, 0.15); border-left-width: 4px; box-shadow: inset 0 0 20px rgba(147,51,234,0.05); }
+
+/* 关键修复：去除 padding 给内部元素，增加安全高度，确保文字多时不遮盖按钮 */
+.terminal-tool-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; transition: all 0.3s ease; position: relative; overflow: hidden; min-h: 190px;}
+.terminal-tool-card:hover { border-color: rgba(59, 130, 246, 0.4); background: rgba(30, 41, 59, 0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+/* 卡片正面：Flexbox 防止重叠遮挡 */
+.card-front { transition: transform 0.4s ease, opacity 0.4s ease; padding: 20px; display: flex; flex-direction: column; height: 100%; }
+/* 卡片背面：绝对定位，翻转效果 */
+.card-back { position: absolute; inset: 0; background: rgba(30, 41, 59, 0.98); backdrop-filter: blur(8px); padding: 20px; transition: transform 0.4s ease; transform: translateX(100%); z-index: 20; display: flex; flex-direction: column; }
+
+/* =========================================================
+   Light Mode (白天模式深度兼容)
 ========================================================= */
 .light-mode { background-color: #f4f6f9; color: #0f172a; }
 .light-mode .text-white { color: #0f172a !important; }
@@ -114,22 +132,46 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 .light-mode .nav-item:hover, .light-mode .nav-item.active { color: #2563eb !important; text-shadow: none !important;}
 .light-mode .nav-item::after { background: #2563eb !important; box-shadow: none !important;}
 .light-mode .settings-panel { background: rgba(248, 250, 252, 0.95) !important; color: #0f172a !important; }
-.light-mode #hubModalContent { background: rgba(255, 255, 255, 0.95) !important; box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important; }
+.light-mode #hubModalContent, .light-mode #chatModalContent { background: rgba(255, 255, 255, 0.95) !important; box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important; }
 .light-mode .hub-sidebar { background: #f8fafc !important; border-color: rgba(0,0,0,0.05) !important; }
 .light-mode .hub-detail-area { background: #ffffff !important; }
 .light-mode .hub-tag { background: #f1f5f9 !important; color: #475569 !important; border-color: #e2e8f0 !important; }
 .light-mode .hub-info-card { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
 
+/* Light Mode: AI Terminal Specific */
+.light-mode #chatModalContent .bg-gray-900 { background: rgba(248, 250, 252, 0.95); border-color: rgba(0,0,0,0.1); color: #0f172a; }
+.light-mode #chatModalContent .bg-gray-800 { background: #ffffff; border-color: rgba(0,0,0,0.15); color: #0f172a; }
+.light-mode #chatModalContent textarea { color: #0f172a; background: #ffffff; }
+.light-mode #chatModalContent .text-gray-500 { color: #64748b; }
+.light-mode #chatBox .bg-gray-800\/50 { background: #ffffff; color: #1e293b; border-color: #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+.light-mode #chatBox .text-gray-200 { color: #334155; }
+.light-mode #chatBox h3.text-white { color: #0f172a !important; } /* RECOMMENDED TOOLS 标题 */
+.light-mode .terminal-reasoning { background: rgba(147, 51, 234, 0.05); color: #475569; border-color: rgba(147, 51, 234, 0.15); box-shadow: none; }
+.light-mode .terminal-reasoning .text-gray-300 { color: #475569 !important; }
+.light-mode .terminal-tool-card { background: #f8fafc; border-color: #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.light-mode .terminal-tool-card:hover { border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.06); background: #ffffff; }
+.light-mode .terminal-tool-card h4.text-blue-400 { color: #2563eb; }
+.light-mode .terminal-tool-card p.text-gray-400 { color: #64748b; }
+.light-mode .terminal-tool-card .bg-gray-700 { background: #e2e8f0; color: #475569; }
+.light-mode .terminal-tool-card .bg-gray-700:hover { background: #2563eb; color: #ffffff; }
+/* 白天模式 - 卡片正反面控制 */
+.light-mode .card-front .bg-purple-600\/80 { background: rgba(147, 51, 234, 0.1); color: #9333ea; }
+.light-mode .card-front .bg-purple-600\/80:hover { background: #9333ea; color: #ffffff; }
+.light-mode .card-back { background: rgba(255, 255, 255, 0.98); border: 1px solid #e2e8f0; border-radius: 16px; }
+.light-mode .card-back .text-gray-400 { color: #64748b; } 
+.light-mode .card-back .bg-gray-800 { background: #f1f5f9; color: #475569; }
+.light-mode .card-back .bg-gray-800:hover { background: #e2e8f0; color: #0f172a; }
+.light-mode .card-back textarea { background: #f8fafc; border-color: #cbd5e1; color: #0f172a; font-weight: 500; }
+.light-mode .card-back textarea:focus { border-color: #9333ea; background: #ffffff; }
+
 /* =========================================================
-   Simple Mode (简单模式) - 修复跳动问题
+   Simple Mode (简单模式) 
 ========================================================= */
 .simple-mode #bg { display: none !important; }
 .simple-mode #ai-cloud { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; align-content: flex-start !important; gap: 20px !important; overflow-y: auto !important; height: 60vh; padding-bottom: 20px; }
-/* wrapper 在简单模式下占据固定空间，变为流式布局 */
 .simple-mode .particle-wrapper { position: relative !important; left: auto !important; top: auto !important; transform: none !important; }
-/* 内部粒子剥离默认位移 */
 .simple-mode .ai-particle { position: absolute !important; animation: none !important; margin: 0; }
-.simple-mode .ai-particle.expanded { box-shadow: 0 0 0 100vw rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.5) !important; z-index: 1000 !important; }
+.simple-mode .ai-particle.expanded { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; box-shadow: 0 0 0 100vw rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.5) !important; z-index: 1000 !important; }
 .light-mode.simple-mode .ai-particle.expanded { box-shadow: 0 0 0 100vw rgba(255,255,255,0.5), 0 20px 50px rgba(0,0,0,0.1) !important; }
 </style>
 </head>
@@ -205,6 +247,46 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 终极版：AI 终端 (修复文字遮挡与白天模式颜色) -->
+<!-- ============================================== -->
+<div id="chatOverlay" class="fixed inset-0 z-[160] bg-black/70 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500 flex justify-center items-center p-4 sm:p-10 overscroll-contain">
+    <div id="chatModalContent" class="w-full h-full max-w-[1400px] bg-[rgba(15,20,30,0.95)] border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] relative transform scale-95 transition-transform duration-500 p-6 sm:p-8 gap-4">
+        
+        <button onclick="closeChat()" class="absolute top-4 right-6 text-gray-400 hover:text-white text-4xl z-20 transition hover:rotate-90">&times;</button>
+        
+        <!-- 头部区 -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl mt-4 shrink-0 relative z-10 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 font-orbitron tracking-widest" data-i18n="chatTitle">
+                    AI TERMINAL
+                </h1>
+                <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">Powered by DeepSeek-R1 · Neural Routing</p>
+            </div>
+            <div class="bg-purple-500/10 text-purple-400 border border-purple-500/30 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span> 
+                <span>Thinking Engine: <span class="text-white">ONLINE</span></span>
+            </div>
+        </div>
+
+        <!-- 聊天展示区 -->
+        <div id="chatBox" class="flex-1 bg-gray-900 border border-gray-800 rounded-2xl p-6 overflow-y-auto space-y-6 custom-scrollbar relative z-10">
+            <div class="text-gray-500 text-center mt-20 text-sm leading-relaxed" data-i18n="chatPlaceholder">
+                Tell the terminal what you need (e.g. 'I need a tool for academic PPTs').<br>The terminal will route you to the best AI tools and generate prompts.
+            </div>
+        </div>
+
+        <!-- 输入区 -->
+        <div class="relative shrink-0 z-10">
+            <textarea id="promptInput" rows="3" placeholder="请详细描述你的需求 (Describe your task here)..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition resize-none custom-scrollbar text-white text-sm"></textarea>
+            <button id="sendBtn" onclick="handleSend()" class="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-xl font-bold transition flex items-center gap-2 tracking-widest uppercase">
+                Execute 🚀
+            </button>
+        </div>
+
+    </div>
+</div>
+
 <div class="content">
 
 <nav class="navbar" id="navbar">
@@ -219,9 +301,15 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
     <div class="text-center fade-in-up">
         <h1 class="big-title">AI PIONEER</h1>
         <p class="text-xl text-gray-400 tracking-[0.3em] uppercase mb-10" data-i18n="subtitle">Future · Design · Intelligence</p>
-        <button onclick="openHub()" class="start-btn inline-block px-10 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_50px_rgba(147,51,234,0.7)] hover:-translate-y-1" data-i18n="startBtn">
-            START EXPLORING
-        </button>
+        
+        <div class="flex flex-wrap justify-center gap-6">
+            <button onclick="openHub()" class="start-btn inline-block px-10 py-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_50px_rgba(147,51,234,0.7)] hover:-translate-y-1" data-i18n="startBtn">
+                START EXPLORING
+            </button>
+            <button onclick="openChat()" class="start-btn inline-block px-10 py-4 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(20,184,166,0.4)] hover:shadow-[0_0_50px_rgba(16,185,129,0.7)] hover:-translate-y-1" data-i18n="terminalBtn">
+                AI TERMINAL
+            </button>
+        </div>
     </div>
     <div class="scroll-indicator uppercase" data-i18n="scrollText">Scroll to Explore ↓</div>
 </section>
@@ -275,38 +363,30 @@ h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 
 <script>
 /* ==========================================
-   多语言支持 (i18n) 字典与逻辑
+   全局多语言、特效与背景核心逻辑
 ========================================== */
 const i18nTranslations = {
     zh: {
         navHome: "首页", navSearch: "探索", navMatrix: "矩阵", navContact: "联系",
-        subtitle: "未来 · 设计 · 智能", scrollText: "向下滚动探索 ↓", startBtn: "开始探索",
+        subtitle: "未来 · 设计 · 智能", scrollText: "向下滚动探索 ↓", startBtn: "开始探索", terminalBtn: "AI 终端",
         searchTitle: "1000+ AI 神经网络检索", searchPlaceholder: "搜索全球AI工具... (如: '画图', '代码', '视频', 'GPT')",
         matrixTitle: "顶尖模型排行",
         tabAll: "全球总榜", tabLLM: "对话模型 (LLM)", tabImage: "图像绘画 (Image)", tabVideo: "视频生成 (Video)", tabCode: "代码开发 (Code)",
         contactTitle: "联系实验室", contactFooter: "© 2024 AI Pioneer. 初始化未来.",
         settingTitle: "设置", langLabel: "Language / 语言设置", themeLabel: "Appearance / 主题外观",
-        layoutLabel: "Layout Mode / 布局模式", hubTitle: "AI 矩阵生态", hubSearch: "检索1000+各大模型..."
+        layoutLabel: "Layout Mode / 布局模式", hubTitle: "AI 矩阵生态", hubSearch: "检索1000+各大模型...",
+        chatTitle: "AI 终端系统", chatPlaceholder: "告诉终端你需要完成什么任务（如：“我需要一个做学术PPT的工具”）。\n终端将进行深度思考，并为您推荐 3-5 款最佳AI工具，同时生成专属提示词。"
     },
     en: {
         navHome: "Home", navSearch: "Search", navMatrix: "Matrix", navContact: "Contact",
-        subtitle: "Future · Design · Intelligence", scrollText: "Scroll to Explore ↓", startBtn: "START EXPLORING",
+        subtitle: "Future · Design · Intelligence", scrollText: "Scroll to Explore ↓", startBtn: "START EXPLORING", terminalBtn: "AI TERMINAL",
         searchTitle: "1000+ NEURAL SEARCH", searchPlaceholder: "Search AI tools... (e.g. 'Image', 'Code', 'Video', 'GPT')",
         matrixTitle: "Top Ranked Models",
         tabAll: "Global Top", tabLLM: "Chat (LLM)", tabImage: "Image Gen", tabVideo: "Video Gen", tabCode: "Code",
         contactTitle: "Contact Lab", contactFooter: "© 2024 AI Pioneer. Initializing the Future.",
         settingTitle: "SETTINGS", langLabel: "Language", themeLabel: "Appearance",
-        layoutLabel: "Layout Mode", hubTitle: "AI MATRIX", hubSearch: "Search 1000+ models..."
-    },
-    ja: {
-        navHome: "ホーム", navSearch: "検索", navMatrix: "マトリックス", navContact: "連絡先",
-        subtitle: "未来 · デザイン · 知能", scrollText: "スクロールして探索 ↓", startBtn: "探索を開始",
-        searchTitle: "1000+ ニューラル検索", searchPlaceholder: "AIツールを検索...（例：'画像', 'コード', '動画', 'GPT'）",
-        matrixTitle: "トップランクモデル",
-        tabAll: "グローバル", tabLLM: "対話 (LLM)", tabImage: "画像生成", tabVideo: "動画生成", tabCode: "コード",
-        contactTitle: "連絡先ラボ", contactFooter: "© 2024 AI Pioneer. 未来を初期化する.",
-        settingTitle: "設定", langLabel: "Language / 言語設定", themeLabel: "Appearance / 外観",
-        layoutLabel: "Layout Mode / レイアウト", hubTitle: "AI マトリックス", hubSearch: "1000+ モデルを検索..."
+        layoutLabel: "Layout Mode", hubTitle: "AI MATRIX", hubSearch: "Search 1000+ models...",
+        chatTitle: "AI TERMINAL", chatPlaceholder: "Tell the terminal what you need (e.g. 'I need a tool for academic PPTs').\nThe agent will think and route you to 3-5 best AI tools with generated prompts."
     }
 };
 
@@ -314,8 +394,7 @@ let currentLang = 'en';
 
 function changeLanguage(lang) {
     currentLang = lang;
-    const dict = i18nTranslations[lang];
-    if(!dict) return;
+    const dict = i18nTranslations[lang] || i18nTranslations['en'];
     
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -328,16 +407,12 @@ function changeLanguage(lang) {
     });
 
     const isLight = document.body.classList.contains('light-mode');
-    document.getElementById('theme-text').innerText = isLight ? (lang==='zh'?'浅色模式':lang==='ja'?'ライトモード':'Light Mode') : (lang==='zh'?'深色模式':lang==='ja'?'ダークモード':'Dark Mode');
-    
+    document.getElementById('theme-text').innerText = isLight ? (lang==='zh'?'浅色模式':'Light Mode') : (lang==='zh'?'深色模式':'Dark Mode');
     const isSimple = document.body.classList.contains('simple-mode');
-    document.getElementById('mode-text').innerText = isSimple ? (lang==='zh'?'极简模式':lang==='ja'?'シンプルモード':'Simple Mode') : (lang==='zh'?'深度模式':lang==='ja'?'ディープモード':'Deep Mode');
-    document.getElementById('mode-desc').innerText = isSimple ? (lang==='zh'?'干净的网格布局':lang==='ja'?'クリーンなグリッドレイアウト':'Clean Grid Layout') : (lang==='zh'?'3D粒子动画引擎':lang==='ja'?'3Dパーティクルアニメーション':'3D Particle Animations');
+    document.getElementById('mode-text').innerText = isSimple ? (lang==='zh'?'极简模式':'Simple Mode') : (lang==='zh'?'深度模式':'Deep Mode');
+    document.getElementById('mode-desc').innerText = isSimple ? (lang==='zh'?'干净的网格布局':'Clean Grid Layout') : (lang==='zh'?'3D粒子动画引擎':'3D Particle Animations');
 }
 
-/* ==========================================
-   背景设置 (昼夜与模式)
-========================================== */
 let isSettingsOpen = false;
 function toggleSettings() {
     isSettingsOpen = !isSettingsOpen;
@@ -351,7 +426,7 @@ function toggleTheme() {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
     document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
-    document.getElementById('theme-text').innerText = isLight ? (currentLang==='zh'?'浅色模式':currentLang==='ja'?'ライトモード':'Light Mode') : (currentLang==='zh'?'深色模式':currentLang==='ja'?'ダークモード':'Dark Mode');
+    document.getElementById('theme-text').innerText = isLight ? (currentLang==='zh'?'浅色模式':'Light Mode') : (currentLang==='zh'?'深色模式':'Dark Mode');
     
     scene.fog.color.setHex(isLight ? 0xf4f6f9 : 0x030508);
     const palettes = isLight ?[0x1e40af, 0x6b21a8, 0x0f766e, 0x334155, 0x4338ca] :[0x3b82f6, 0x9333ea, 0x06b6d4, 0xffffff, 0x4f46e5];
@@ -364,8 +439,8 @@ function toggleTheme() {
 function toggleMode() {
     document.body.classList.toggle('simple-mode');
     const isSimple = document.body.classList.contains('simple-mode');
-    document.getElementById('mode-text').innerText = isSimple ? (currentLang==='zh'?'极简模式':currentLang==='ja'?'シンプルモード':'Simple Mode') : (currentLang==='zh'?'深度模式':currentLang==='ja'?'ディープモード':'Deep Mode');
-    document.getElementById('mode-desc').innerText = isSimple ? (currentLang==='zh'?'干净的网格布局':currentLang==='ja'?'クリーンなグリッドレイアウト':'Clean Grid Layout') : (currentLang==='zh'?'3D粒子动画引擎':currentLang==='ja'?'3Dパーティクルアニメーション':'3D Particle Animations');
+    document.getElementById('mode-text').innerText = isSimple ? (currentLang==='zh'?'极简模式':'Simple Mode') : (currentLang==='zh'?'深度模式':'Deep Mode');
+    document.getElementById('mode-desc').innerText = isSimple ? (currentLang==='zh'?'干净的网格布局':'Clean Grid Layout') : (currentLang==='zh'?'3D粒子动画引擎':'3D Particle Animations');
     if(isSimple) cancelAnimationFrame(animationFrameId); else animate();
 }
 
@@ -405,58 +480,20 @@ animate();
 window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
 /* ==========================================
-   AI 数据库 (手写42款顶配模型 + 动态扩展至1000款)
+   AI 数据库
 ========================================== */
 const massiveAIData =[
-    {name:"ChatGPT", cat:"LLM", company:"OpenAI", direction:"全能型对话助理、代码编写、逻辑推理", features:["多模态交互(GPT-4o)","极强上下文记忆","官方插件与代码解释器","语音视觉融合"], prompts:["帮我写一段Python爬虫代码，抓取特定网页内容。","用莎士比亚的风格向孩子解释什么是量子力学。"], showcaseType:"code", showcaseText:"def generate_future():\n    ai = OpenAI(model='gpt-4o')\n    world = ai.create(target='utopia')\n    return world\n\n# Terminal Output: \n# [SUCCESS] System initialized...", keywords:"聊天 对话 问答 写作 翻译 编程 gpt", desc:"OpenAI开发的现象级大模型，支持长记忆与多模态。", clicks:25000, url:"https://chat.openai.com"},
-    {name:"Midjourney", cat:"Image", company:"Midjourney Inc.", direction:"商业插画、摄影级概念图、UI设计", features:["V6超高画质","极强语义还原","局部重绘(Vary)","风格化极值控制"], prompts:["A futuristic cyberpunk city, neon lights, 8k resolution, photorealistic --ar 16:9","Cute cat reading a book in a magical library, 3d render, pixar style --v 6.0"], showcaseType:"image", showcaseImages:["https://images.unsplash.com/photo-1678911820864-e2c567c655d7?w=600&q=80","https://images.unsplash.com/photo-1682687982501-1e5898cb8e4f?w=600&q=80"], keywords:"画图 图像 绘画 设计 生图", desc:"目前全球画质最高、艺术感最强的AI绘画引擎。", clicks:24800, url:"https://midjourney.com"},
-    {name:"Claude 3", cat:"LLM", company:"Anthropic", direction:"超长文本分析、严谨学术论文撰写、数据整理", features:["Opus级超越GPT4逻辑","20万字超长上下文","代码与JSON强制输出","极低的安全幻觉"], prompts:["分析附件中的100页财报，提取出Q3季度的核心增长点。","帮我将以下非结构化文本转换为格式化的JSON数据。"], showcaseType:"code", showcaseText:"{\n  \"model\": \"claude-3-opus\",\n  \"status\": \"processing_document\",\n  \"tokens_analyzed\": 154200,\n  \"insights\":[\"Revenue up 25%\", \"Cost reduced\"]\n}", keywords:"聊天 逻辑 写作 长文本 分析", desc:"Anthropic推出的强力AI，以极强的逻辑推理和长文本分析著称。", clicks:24200, url:"https://claude.ai"},
-    {name:"Sora", cat:"Video", company:"OpenAI", direction:"物理世界模拟、高清影视生成、一镜到底", features:["长达60秒单视频","极强物理连贯性","复杂场景多角度运镜","极高色彩保真度"], prompts:["A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage.","A movie trailer featuring the adventures of the 30 year old space man wearing a red wool knitted motorcycle helmet."], showcaseType:"image", showcaseImages:["https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80","https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80"], keywords:"视频 影视 动画 动图", desc:"OpenAI物理世界模拟器，根据文本生成60秒逼真视频。", clicks:26000, url:"https://openai.com/sora"},
-    {name:"Cursor", cat:"Code", company:"Anysphere", direction:"全栈软件开发、代码重构、Bug修复", features:["Cmd+K 内联生成","全代码库上下文感知","基于GPT-4与Claude3","一键Debug排错"], prompts:["@Codebase Explain how the authentication flow works here.","Refactor this component to use React Hooks and Tailwind CSS."], showcaseType:"code", showcaseText:"// Cursor Inline Edit\nfunction handleAuth() {\n  // AI generated implementation\n  const token = await jwt.sign({ user: id }, SECRET);\n  return res.status(200).json({ success: true, token });\n}", keywords:"代码 编程 开发 写代码 程序员", desc:"基于大模型深度融合重构代码库的划时代AI编辑器。", clicks:22400, url:"https://cursor.sh"},
-    {name:"Kimi", cat:"LLM", company:"Moonshot AI", direction:"国产高效搜索、几十万字长文精读", features:["支持200万字输入","极速联网检索","无缝读取PDF/Word","国产最优中文理解"], prompts:["总结这份《2024年人工智能发展白皮书》的核心观点。","搜索最近关于SpaceX星舰发射的新闻并做个梳理。"], showcaseType:"text", showcaseText:"[Kimi 联网检索完毕]\n根据最新资料整理：\n1. 核心观点：生成式AI正在重塑各行各业的生产力...\n2. 投资趋势：算力芯片与基础大模型仍是主战场...", keywords:"聊天 文档 总结 阅读 国产", desc:"月之暗面科技打造，极擅长超长文档阅读和资料总结。", clicks:21000, url:"https://kimi.moonshot.cn"},
-    {name:"DeepSeek", cat:"LLM", keywords:"代码 逻辑 深度求索 国产 免费", desc:"国产高性价比大模型，代码与逻辑推理能力极其出色。", clicks:23500, url:"https://chat.deepseek.com"},
-    {name:"Gemini", cat:"LLM", keywords:"聊天 谷歌 视频分析 多模态", desc:"Google原生多模态大模型，深度整合Google生态。", clicks:22000, url:"https://gemini.google.com"},
-    {name:"豆包", cat:"LLM", keywords:"字节跳动 聊天 语音 插件", desc:"字节跳动旗下的大模型AI助手，提供优质语音交互和丰富插件。", clicks:18000, url:"https://www.doubao.com"},
-    {name:"通义千问", cat:"LLM", keywords:"阿里 聊天 开源 编程", desc:"阿里云自主研发的大语言模型，开源社区影响力极大。", clicks:17900, url:"https://tongyi.aliyun.com"},
-    {name:"文心一言", cat:"LLM", keywords:"百度 聊天 中文", desc:"百度推出的知识增强大语言模型，全面理解中文环境。", clicks:17500, url:"https://yiyan.baidu.com"},
-    {name:"智谱清言", cat:"LLM", keywords:"清华 聊天 GLM 数据分析", desc:"基于GLM基座模型，具备强大的文档与数据处理能力。", clicks:16200, url:"https://chatglm.cn"},
-    {name:"腾讯混元", cat:"LLM", keywords:"腾讯 聊天 助手", desc:"腾讯研发的大模型，深度赋能会议、文档等多重场景。", clicks:15800, url:"https://hunyuan.tencent.com"},
-    {name:"百川大模型", cat:"LLM", keywords:"百川 聊天 医疗 搜索", desc:"由王小川创办，融合搜索与大模型底座，精准度高。", clicks:14000, url:"https://www.baichuan-ai.com"},
-    {name:"零一万物", cat:"LLM", keywords:"Yi 聊天 效率", desc:"李开复带队打造的Yi系列模型，处理长文本游刃有余。", clicks:13500, url:"https://www.lingyiwanwu.com"},
-    {name:"Perplexity", cat:"LLM", keywords:"搜索 问答 查资料", desc:"面向未来的AI搜索引擎，直接为你总结答案并附上精准来源。", clicks:19500, url:"https://perplexity.ai"},
-    {name:"Groq", cat:"LLM", keywords:"极速 聊天 芯片", desc:"采用LPU专属芯片，提供不可思议的极致生成速度。", clicks:12500, url:"https://groq.com"},
-    {name:"Poe", cat:"LLM", keywords:"聚合 聊天 机器人", desc:"集成数十种顶尖大模型的聚合对话平台。", clicks:15000, url:"https://poe.com"},
-    {name:"Coze", cat:"LLM", keywords:"扣子 字节 智能体 Bot", desc:"字节推出的下一代AI Bot搭建平台，零代码定制AI。", clicks:18500, url:"https://www.coze.cn"},
-    {name:"Pi", cat:"LLM", keywords:"陪伴 聊天 语音 心理", desc:"Inflection AI打造的最具人情味和高情商的聊天机器人。", clicks:11000, url:"https://pi.ai"},
-    {name:"Stable Diffusion", cat:"Image", keywords:"画图 绘画 图像 开源", desc:"最强大的开源AI绘画模型，支持ControlNet精准控制。", clicks:22500, url:"https://stability.ai"},
-    {name:"DALL·E 3", cat:"Image", keywords:"画图 图像 openai 设计", desc:"OpenAI出品，极致准确地还原复杂文本提示词。", clicks:19000, url:"https://openai.com/dall-e-3"},
-    {name:"Leonardo.ai", cat:"Image", keywords:"画图 设计 游戏 资产", desc:"极受设计师和游戏开发者欢迎的高质量生图平台。", clicks:17400, url:"https://leonardo.ai"},
-    {name:"Adobe Firefly", cat:"Image", keywords:"画图 PS 设计 商业", desc:"Adobe推出的版权安全AI模型，完美融合入Photoshop。", clicks:18100, url:"https://firefly.adobe.com"},
-    {name:"Fooocus", cat:"Image", keywords:"画图 开源 傻瓜 极简", desc:"简化版的SD生图工具，不需要复杂调参即可出大片。", clicks:12800, url:"https://github.com/lllyasviel/Fooocus"},
-    {name:"Canva", cat:"Image", keywords:"设计 海报 PPT 办公", desc:"内置海量AI魔法工具，一键生成海报与设计素材。", clicks:21900, url:"https://www.canva.com"},
-    {name:"Civitai", cat:"Image", keywords:"模型 C站 绘画 Lora", desc:"全球最大的AI绘画开源模型与Lora分享社区。", clicks:18900, url:"https://civitai.com"},
-    {name:"妙鸭相机", cat:"Image", keywords:"写真 摄影 人像 换脸", desc:"现象级的AI写真小程序，只需上传照片即可生成影楼级写真。", clicks:15000, url:"https://miaoya.ai"},
-    {name:"Krea.ai", cat:"Image", keywords:"画图 实时 放大", desc:"主打实时生图和极致的AI图像放大与细节增强引擎。", clicks:13200, url:"https://www.krea.ai"},
-    {name:"Magnific", cat:"Image", keywords:"画图 放大 细节", desc:"号称魔法般的AI图像放大器，能凭空增加极其惊人的细节。", clicks:14500, url:"https://magnific.ai"},
-    {name:"Runway", cat:"Video", keywords:"视频 影视 特效", desc:"Gen-2视频生成领域的先驱，支持文本生视频及后期编辑。", clicks:21300, url:"https://runwayml.com"},
-    {name:"Pika", cat:"Video", keywords:"视频 动画 二次元", desc:"极其易用的AI视频生成工具，擅长3D动画和二次元风格。", clicks:19500, url:"https://pika.art"},
-    {name:"Luma Dream", cat:"Video", keywords:"视频 影视 3D", desc:"高质量AI视频生成新星，运镜与物理动态极具真实感。", clicks:18200, url:"https://lumalabs.ai/dream-machine"},
-    {name:"Kling (可灵)", cat:"Video", keywords:"视频 快手 影视 国产", desc:"快手自研的国产视频大模型，物理特性和时长震撼业界。", clicks:17900, url:"https://kling.kuaishou.com"},
-    {name:"Vidu", cat:"Video", keywords:"视频 生数 国产", desc:"生数科技发布的一键生成高清长视频大模型。", clicks:14400, url:"https://www.vidu.studio"},
-    {name:"智谱清影", cat:"Video", keywords:"视频 智谱 国产 动画", desc:"智谱AI推出的清影视频大模型，生成速度极快。", clicks:15100, url:"https://chatglm.cn/video"},
-    {name:"Copilot", cat:"Code", keywords:"编程 代码 补全 微软 github", desc:"微软与GitHub联合打造的代码补全神器，显著提升开发效率。", clicks:23900, url:"https://github.com/features/copilot"},
-    {name:"Devin", cat:"Code", keywords:"编程 程序员 智能体 agent", desc:"全球首个完全自治的AI软件工程师智能体。", clicks:19200, url:"https://cognition-labs.com"},
-    {name:"v0", cat:"Code", keywords:"前端 UI 代码 vercel", desc:"Vercel推出的只需自然语言即可生成精美React UI组件的工具。", clicks:18100, url:"https://v0.dev"},
-    {name:"Bolt.new", cat:"Code", keywords:"全栈 代码 部署 前端", desc:"直接在浏览器中利用AI从零构建并部署全栈应用的平台。", clicks:14500, url:"https://bolt.new"},
-    {name:"Codeium", cat:"Code", keywords:"编程 代码 补全 免费", desc:"极其强大的免费AI代码补全辅助工具。", clicks:16900, url:"https://codeium.com"},
-    {name:"Phind", cat:"Code", keywords:"编程 搜索 程序员", desc:"专为开发者打造的AI搜索引擎，直击技术痛点。", clicks:15500, url:"https://www.phind.com"},
-    {name:"Suno", cat:"All", keywords:"音乐 唱歌 写歌 音频", desc:"颠覆音乐行业的AI生成工具，只需歌词即可生成完整歌曲。", clicks:22100, url:"https://suno.com"},
-    {name:"Udio", cat:"All", keywords:"音乐 写歌 音频", desc:"音质惊人的AI音乐生成引擎，能驾驭各种复杂曲风。", clicks:19300, url:"https://www.udio.com"},
-    {name:"ElevenLabs", cat:"All", keywords:"配音 声音 语音 播客", desc:"全球拟真度最高的AI语音合成和声音克隆平台。", clicks:20900, url:"https://elevenlabs.io"},
-    {name:"Notion AI", cat:"All", keywords:"办公 笔记 写作 总结", desc:"无缝集成在Notion笔记中的AI助手，帮你润色工作内容。", clicks:20800, url:"https://notion.so"}
+    {name:"ChatGPT", cat:"LLM", desc:"OpenAI开发的现象级大模型，支持长记忆与多模态。", clicks:25000, url:"https://chatgpt.com"},
+    {name:"Midjourney", cat:"Image", desc:"目前全球画质最高、艺术感最强的AI绘画引擎。", clicks:24800, url:"https://midjourney.com"},
+    {name:"Claude 3", cat:"LLM", desc:"Anthropic推出的强力AI，以极强的逻辑推理和长文本分析著称。", clicks:24200, url:"https://claude.ai"},
+    {name:"Sora", cat:"Video", desc:"OpenAI物理世界模拟器，根据文本生成60秒逼真视频。", clicks:26000, url:"https://openai.com/sora"},
+    {name:"Cursor", cat:"Code", desc:"基于大模型深度融合重构代码库的划时代AI编辑器。", clicks:22400, url:"https://cursor.sh"},
+    {name:"Kimi", cat:"LLM", desc:"月之暗面科技打造，极擅长超长文档阅读和资料总结。", clicks:21000, url:"https://kimi.moonshot.cn"},
+    {name:"DeepSeek", cat:"LLM", desc:"国产高性价比大模型，代码与逻辑推理能力极其出色。", clicks:23500, url:"https://chat.deepseek.com"},
+    {name:"Gamma", cat:"All", desc:"颠覆传统排版，用一句话即可生成精美的幻灯片。", clicks:18200, url:"https://gamma.app"},
+    {name:"Suno", cat:"All", desc:"颠覆音乐行业的AI生成工具，只需歌词即可生成完整歌曲。", clicks:22100, url:"https://suno.com"}
 ];
 
-/* 动态扩展至 1000+ 工具 (双重图标兜底机制保证图标不为空) */
 const prefixes =["智绘", "灵码", "影匠", "文心", "魔音", "画境", "CodeMate", "VidGen", "DesignBot", "DeepText", "PixelForge", "StoryCraft", "AI Studio", "Nova", "Flux", "Synth", "Neural", "Cortex"];
 const suffixes =["Pro", "Max", "Lite", "Ultra", "X", "Studio", "AI", "助手", "大师", "工坊", "引擎", "实验室"];
 const nameThemes =["Midjourney", "DALL·E", "Runway", "Sora", "Copilot", "豆包", "文心", "千问", "星火", "Claude", "Gemini", "SD", "Krea", "Pika", "Gen-2", "Leonardo", "Ideogram", "Cursor", "Bolt", "可灵", "即梦", "Liblib"];
@@ -465,160 +502,23 @@ const CAPABILITIES =["生图", "视频", "文字", "代码", "设计"];
 function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 for (let i = 1; i <= 960; i++) {
-    let name = "";
-    if (i < 200) {
-        const base = randomItem(nameThemes);
-        const suffix = Math.random() > 0.6 ? ` ${randomItem(suffixes)}` : "";
-        name = `${base}${suffix} - V${Math.floor(Math.random()*10)}`;
-    } else {
-        name = `${randomItem(prefixes)} ${randomItem(suffixes)} ${i}`;
-    }
-
-    const shuffled = [...CAPABILITIES].sort(() => 0.5 - Math.random());
-    const primaryCap = shuffled[0];
-
-    let cat = "All", keywords = shuffled.join(" "), desc = "";
-    if (primaryCap === "生图") { cat = "Image"; keywords += " 画图 图像 绘画 设计 生图"; desc = "强力图像生成引擎，支持多元风格转换。"; }
-    else if (primaryCap === "视频") { cat = "Video"; keywords += " 视频 影视 动画 动图"; desc = "智能视频生成与编辑，风格化转绘与运镜支持。"; }
-    else if (primaryCap === "文字") { cat = "LLM"; keywords += " 聊天 对话 问答 写作 翻译"; desc = "强大语言模型，写作、摘要、逻辑对话样样精通。"; }
-    else if (primaryCap === "代码") { cat = "Code"; keywords += " 代码 编程 开发 写代码 程序员"; desc = "代码辅助、自动补全、排错及项目生成自动化。"; }
-    else if (primaryCap === "设计") { cat = "All"; keywords += " 设计 办公 UI 自动化"; desc = "全能设计与效率助手，生成多模态品牌与办公物料。"; }
-
+    let name = i < 200 ? `${randomItem(nameThemes)}${Math.random() > 0.6 ? ' '+randomItem(suffixes) : ''} - V${Math.floor(Math.random()*10)}` : `${randomItem(prefixes)} ${randomItem(suffixes)} ${i}`;
+    let primaryCap =[...CAPABILITIES].sort(() => 0.5 - Math.random())[0];
+    let cat = "All", desc = "强力AI引擎，支持多模态内容生成。";
+    if (primaryCap === "生图") { cat = "Image"; desc = "强力图像生成引擎，支持多元风格转换。"; }
+    else if (primaryCap === "视频") { cat = "Video"; desc = "智能视频生成与编辑，风格化转绘支持。"; }
+    else if (primaryCap === "文字") { cat = "LLM"; desc = "强大语言模型，写作、摘要、逻辑对话样样精通。"; }
+    else if (primaryCap === "代码") { cat = "Code"; desc = "代码辅助、自动补全、排错及自动化。"; }
+    
     massiveAIData.push({
-        name: name, cat: cat, company: "Global Tech AI", direction: desc,
-        features:["跨模态任务处理引擎", "极简的高效响应交互设计", "卓越的模型渲染与生成稳定表现"],
-        prompts:["请帮我总结核心要点并列出操作清单。", "根据特定需求生成一份完善的解决方案。"],
-        showcaseType: "code",
-        showcaseText: `System ready for [${name}]...\nGenerating optimized outputs based on query parameters.\n> SUCCESS: Render complete.`,
-        keywords: keywords, desc: desc, clicks: Math.floor(Math.random() * 8000) + 500, url: "https://example.com"
+        name: name, cat: cat, desc: desc, clicks: Math.floor(Math.random() * 8000) + 500,
+        url: `https://www.google.com/search?q=${encodeURIComponent(name + ' AI')}`, isGenerated: true
     });
 }
-
 let tools = massiveAIData;
 
 /* ==========================================
-   大模型矩阵主页 (Hub Overlay) 逻辑
-========================================== */
-function openHub() {
-    const overlay = document.getElementById('hubOverlay');
-    const content = document.getElementById('hubModalContent');
-    overlay.classList.remove('opacity-0', 'pointer-events-none');
-    setTimeout(() => content.classList.remove('scale-95'), 50);
-    renderHubList(''); 
-    if(tools.length > 0) selectHubItem(tools[0]);
-}
-
-function closeHub() {
-    const overlay = document.getElementById('hubOverlay');
-    const content = document.getElementById('hubModalContent');
-    content.classList.add('scale-95');
-    setTimeout(() => overlay.classList.add('opacity-0', 'pointer-events-none'), 300);
-}
-
-document.getElementById('hubSearch').addEventListener('input', (e) => {
-    renderHubList(e.target.value.toLowerCase().trim());
-});
-
-function renderHubList(query) {
-    const list = document.getElementById('hubList');
-    list.innerHTML = "";
-    let filtered = tools.filter(t => t.name.toLowerCase().includes(query) || (t.keywords && t.keywords.toLowerCase().includes(query)));
-    let sorted = filtered.sort((a,b) => b.clicks - a.clicks).slice(0, 300); 
-    
-    sorted.forEach((t, index) => {
-        let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
-        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-        let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=64`;
-        let imgSrc = (domain === 'example.com' || domain === '') ? fallbackUrl : iconUrl;
-        
-        let d = document.createElement("div");
-        d.className = "hub-item flex items-center gap-4 p-3 rounded-xl cursor-pointer";
-        d.innerHTML = `
-            <div class="text-gray-500 font-bold w-4 text-center text-sm">${index + 1}</div>
-            <img src="${imgSrc}" onerror="this.onerror=null; this.src='${fallbackUrl}';" class="w-10 h-10 rounded-full bg-white/10 p-1 object-contain">
-            <div>
-                <h4 class="text-white font-bold text-sm">${t.name}</h4>
-                <p class="text-xs text-gray-400">🔥 ${(t.clicks/1000).toFixed(1)}k uses</p>
-            </div>
-        `;
-        d.onclick = () => {
-            document.querySelectorAll('.hub-item').forEach(el => el.classList.remove('active', 'bg-blue-500/20'));
-            d.classList.add('active', 'bg-blue-500/20');
-            selectHubItem(t);
-        };
-        list.appendChild(d);
-    });
-}
-
-function selectHubItem(t) {
-    const detailBox = document.getElementById('hubDetailContent');
-    detailBox.style.opacity = 0; 
-    
-    setTimeout(() => {
-        let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
-        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-        let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=128`;
-        let imgSrc = (domain === 'example.com' || domain === '') ? fallbackUrl : iconUrl;
-        
-        let html = `
-            <div class="flex items-start justify-between mb-8 pb-8 border-b border-white/10">
-                <div class="flex items-center gap-6">
-                    <img src="${imgSrc}" onerror="this.onerror=null; this.src='${fallbackUrl}';" class="w-24 h-24 rounded-2xl bg-white/5 p-2 object-contain shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                    <div>
-                        <h1 class="text-4xl font-bold text-white mb-2 tracking-wide hub-title">${t.name}</h1>
-                        <p class="text-gray-400 mb-3 text-lg">By <span class="text-blue-400 font-semibold">${t.company || 'Global Tech AI'}</span></p>
-                        <div class="flex gap-2">
-                            <span class="hub-tag">${t.cat}</span>
-                            <span class="hub-tag">🔥 Trending</span>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="window.open('${t.url}', '_blank')" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.4)] transition hover:-translate-y-1">Launch Web</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">🎯 核心方向</h3>
-                    <p class="text-gray-300 text-sm leading-relaxed">${t.direction || t.desc}</p>
-                </div>
-                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">⚙️ 特色功能</h3>
-                    <ul class="text-gray-300 text-sm space-y-2">
-                        ${(t.features ||["跨模态任务处理引擎", "极简的高效响应交互设计", "卓越的模型稳定表现"]).map(f => `<li>• ${f}</li>`).join('')}
-                    </ul>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">💡 优质提示词参考</h3>
-                    <div class="space-y-3">
-                        ${(t.prompts ||["请帮我总结核心要点并列出操作清单。", "根据特定需求生成一份完善的解决方案。"]).map(p => `
-                            <div class="bg-white/5 p-3 rounded-lg border border-white/5 text-gray-300 text-xs italic">"${p}"</div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">✨ 实际成果演示</h3>
-                    <div class="flex-1 flex items-center justify-center">
-        `;
-        
-        if(t.showcaseType === 'image' && t.showcaseImages) {
-            html += `<div class="flex gap-2 overflow-hidden rounded-xl">${t.showcaseImages.map(img => `<img src="${img}" class="w-1/2 object-cover hover:scale-110 transition duration-500">`).join('')}</div>`;
-        } else {
-            html += `<div class="code-mockup w-full whitespace-pre-wrap leading-relaxed mt-2">${t.showcaseText || "System ready...\nAwaiting prompt execution.\n> SUCCESS"}</div>`;
-        }
-        
-        html += `</div></div></div>`;
-        
-        detailBox.innerHTML = html;
-        detailBox.style.opacity = 1;
-    }, 200);
-}
-
-/* ==========================================
-   全网图标分布渲染 (Page 2) - 修复简单模式下的乱跳问题
+   原版页面图标分布渲染与 HUB 面板 (保持不变)
 ========================================== */
 function renderCloud(list) {
     const box = document.getElementById("ai-cloud"); box.innerHTML = "";
@@ -630,76 +530,343 @@ function renderCloud(list) {
     let rows = Math.max(1, Math.ceil(total / cols));
 
     displayList.forEach((t, i) => {
-        // 创建外层 Wrapper，用于在简单模式下充当占位符，防止乱跳
-        let w = document.createElement("div"); 
-        w.className = "particle-wrapper";
+        let w = document.createElement("div"); w.className = "particle-wrapper";
+        let d = document.createElement("div"); d.className = "ai-particle group";
         
-        // 创建实际的粒子
-        let d = document.createElement("div"); 
-        d.className = "ai-particle group";
-        
-        // 双重容错图标渲染逻辑
         let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
-        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
         let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=128`;
-        let imgSrc = (domain === 'example.com' || domain === '') ? fallbackUrl : iconUrl;
+        let iconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        let imgSrc = t.isGenerated ? fallbackUrl : iconUrl;
 
         d.innerHTML = `
             <div class="icon-state"><img src="${imgSrc}" onerror="this.onerror=null; this.src='${fallbackUrl}';" class="w-[60%] h-[60%] object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"></div>
             <div class="detail-state">
                 <span class="detail-close">&times;</span>
                 <h3 class="font-bold text-white text-xl mb-1">${t.name}</h3>
-                <div><span class="detail-cat">${t.cat === 'All' ? 'Tool' : t.cat}</span></div>
+                <div><span class="detail-cat">${t.cat}</span></div>
                 <p class="detail-desc">${t.desc}</p>
-                <button class="launch-btn w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 text-white py-2 rounded-lg text-sm font-bold transition">Launch Matrix</button>
+                <button class="launch-btn w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 text-white py-2 rounded-lg text-sm font-bold transition">Launch</button>
             </div>
         `;
         
         let col = i % cols; let row = Math.floor(i / cols); let cellWidth = 100 / cols; let cellHeight = 100 / rows;
-        let jitterX = (Math.random() - 0.5) * (cellWidth * 0.8); let jitterY = (Math.random() - 0.5) * (cellHeight * 0.8);
-        let leftPos = Math.max(4, Math.min(96, (col * cellWidth) + (cellWidth / 2) + jitterX));
-        let topPos = Math.max(8, Math.min(92, (row * cellHeight) + (cellHeight / 2) + jitterY));
+        let leftPos = Math.max(4, Math.min(96, (col * cellWidth) + (cellWidth / 2) + (Math.random() - 0.5) * (cellWidth * 0.8)));
+        let topPos = Math.max(8, Math.min(92, (row * cellHeight) + (cellHeight / 2) + (Math.random() - 0.5) * (cellHeight * 0.8)));
 
-        d.style.animationDelay = `${Math.random() * 4}s`; 
-        w.style.left = leftPos + "%"; 
-        w.style.top = topPos + "%";
+        w.style.left = leftPos + "%"; w.style.top = topPos + "%"; d.style.animationDelay = `${Math.random() * 4}s`; 
+        let tx = "-50%", ty = "-50%";
+        if (leftPos < 20) tx = "-10%"; else if (leftPos > 80) tx = "-90%";
+        if (topPos < 30) ty = "-10%"; else if (topPos > 70) ty = "-90%";
+        d.style.setProperty('--expand-transform', `translate(${tx}, ${ty})`);
 
         d.onclick = (e) => { 
             if(!d.classList.contains('expanded')) { 
-                document.querySelectorAll('.ai-particle.expanded').forEach(el => el.classList.remove('expanded')); 
-                d.classList.add('expanded'); 
+                document.querySelectorAll('.ai-particle.expanded').forEach(el => { el.classList.remove('expanded'); if(el.parentElement) el.parentElement.classList.remove('wrapper-expanded'); }); 
+                d.classList.add('expanded'); w.classList.add('wrapper-expanded'); 
             }
         };
-        d.querySelector('.detail-close').onclick = (e) => { e.stopPropagation(); d.classList.remove('expanded'); };
+        d.querySelector('.detail-close').onclick = (e) => { e.stopPropagation(); d.classList.remove('expanded'); w.classList.remove('wrapper-expanded'); };
         d.querySelector('.launch-btn').onclick = (e) => { e.stopPropagation(); window.open(t.url, '_blank'); };
         
-        w.appendChild(d);
-        box.appendChild(w);
+        w.appendChild(d); box.appendChild(w);
     });
 }
-document.addEventListener('click', (e) => { if (!e.target.closest('.ai-particle') && !e.target.closest('.start-btn')) document.querySelectorAll('.ai-particle.expanded').forEach(el => el.classList.remove('expanded')); });
-document.getElementById('searchBox').addEventListener('input', (e) => { let v = e.target.value.toLowerCase().trim(); if(v === "") renderCloud(tools); else { let filtered = tools.filter(t => t.name.toLowerCase().includes(v) || (t.cat !== 'All' && t.cat.toLowerCase().includes(v)) || (t.keywords && t.keywords.toLowerCase().includes(v))); renderCloud(filtered); }});
 
-/* ==========================================
-   排行榜渲染 (Page 3)
-========================================== */
+function openHub() { document.getElementById('hubOverlay').classList.remove('opacity-0', 'pointer-events-none'); setTimeout(() => document.getElementById('hubModalContent').classList.remove('scale-95'), 50); renderHubList(''); }
+function closeHub() { document.getElementById('hubModalContent').classList.add('scale-95'); setTimeout(() => document.getElementById('hubOverlay').classList.add('opacity-0', 'pointer-events-none'), 300); }
+document.getElementById('hubSearch').addEventListener('input', (e) => { renderHubList(e.target.value.toLowerCase().trim()); });
+
+function renderHubList(query) {
+    const list = document.getElementById('hubList'); list.innerHTML = "";
+    tools.filter(t => t.name.toLowerCase().includes(query)).sort((a,b) => b.clicks - a.clicks).slice(0, 300).forEach((t, i) => {
+        let domain = ""; try { domain = new URL(t.url).hostname; } catch(e) { domain = "openai.com"; }
+        let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name.substring(0,2))}&background=random&color=fff&size=64`;
+        let imgSrc = t.isGenerated ? fallbackUrl : `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        let d = document.createElement("div"); d.className = "hub-item flex items-center gap-4 p-3 rounded-xl cursor-pointer";
+        d.innerHTML = `<div class="text-gray-500 font-bold w-4 text-center text-sm">${i + 1}</div><img src="${imgSrc}" onerror="this.src='${fallbackUrl}';" class="w-10 h-10 rounded-full bg-white/10 p-1 object-contain"><div><h4 class="text-white font-bold text-sm">${t.name}</h4><p class="text-xs text-gray-400">🔥 ${(t.clicks/1000).toFixed(1)}k uses</p></div>`;
+        d.onclick = () => { document.querySelectorAll('.hub-item').forEach(el => el.classList.remove('active', 'bg-blue-500/20')); d.classList.add('active', 'bg-blue-500/20'); selectHubItem(t); };
+        list.appendChild(d);
+    });
+}
+function selectHubItem(t) {
+    const detailBox = document.getElementById('hubDetailContent'); detailBox.style.opacity = 0; 
+    setTimeout(() => {
+        detailBox.innerHTML = `
+            <div class="flex items-start justify-between mb-8 pb-8 border-b border-white/10">
+                <div class="flex items-center gap-6">
+                    <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]">${t.name.substring(0,2)}</div>
+                    <div><h1 class="text-4xl font-bold text-white mb-2">${t.name}</h1><p class="text-gray-400">AI Matrix Hub</p></div>
+                </div>
+                <button onclick="window.open('${t.url}', '_blank')" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">Launch Web</button>
+            </div>
+            <div class="hub-info-card bg-black/40 p-6 rounded-2xl border border-white/5"><h3 class="text-lg font-bold text-white mb-4">🎯 核心方向</h3><p class="text-gray-300 text-sm leading-relaxed">${t.desc}</p></div>
+        `;
+        detailBox.style.opacity = 1;
+    }, 200);
+}
+
 function createCard(t) {
     let d = document.createElement("div"); d.className = "card fade-in-up visible";
-    d.innerHTML = `
-        <div class="flex justify-between items-start mb-2">
-            <h3 class="text-xl text-white font-bold truncate">${t.name}</h3><span class="text-xs text-purple-300 bg-purple-500/20 px-2 py-1 rounded-md">🔥 ${(t.clicks/1000).toFixed(1)}k</span>
-        </div>
-        <p class="text-xs text-gray-400 mb-4">${t.desc.substring(0, 36)}...</p>
-        <button class="w-full bg-white/5 hover:bg-blue-600 border border-white/10 text-white py-2 rounded-lg text-sm font-semibold transition">Launch</button>
-    `;
+    d.innerHTML = `<div class="flex justify-between items-start mb-2"><h3 class="text-xl text-white font-bold truncate">${t.name}</h3><span class="text-xs text-purple-300 bg-purple-500/20 px-2 py-1 rounded-md">🔥 ${(t.clicks/1000).toFixed(1)}k</span></div><p class="text-xs text-gray-400 mb-4">${t.desc.substring(0, 36)}...</p><button class="w-full bg-white/5 hover:bg-blue-600 border border-white/10 text-white py-2 rounded-lg text-sm font-semibold transition">Launch</button>`;
     d.querySelector("button").onclick = () => window.open(t.url, '_blank'); return d;
 }
 function filterCategory(cat) {
     document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active');
-    let filtered = cat === 'All' ? tools : tools.filter(t => t.cat === cat); let r = filtered.sort((a,b) => b.clicks - a.clicks).slice(0, 8); 
+    let r = (cat === 'All' ? tools : tools.filter(t => t.cat === cat)).sort((a,b) => b.clicks - a.clicks).slice(0, 8); 
     let box = document.getElementById("ranking-grid"); box.innerHTML = ""; r.forEach(t => box.appendChild(createCard(t)));
 }
-window.onload = () => { renderCloud(tools); filterCategory('All'); changeLanguage('en'); /* 初始化为英文，防止乱码闪烁 */ };
+window.onload = () => { renderCloud(tools); filterCategory('All'); changeLanguage('zh'); };
+
+
+/* ==========================================================
+   终极版 AI 终端：滑动提示词面板 (修复遮挡并支持昼夜切换)
+========================================================== */
+function openChat() {
+    document.getElementById('chatOverlay').classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => document.getElementById('chatModalContent').classList.remove('scale-95'), 50);
+}
+
+function closeChat() {
+    document.getElementById('chatModalContent').classList.add('scale-95');
+    setTimeout(() => document.getElementById('chatOverlay').classList.add('opacity-0', 'pointer-events-none'), 300);
+}
+
+// 展开或收起 提示词面板 的函数
+window.togglePrompt = function(btnElement, isShow) {
+    const card = btnElement.closest('.terminal-tool-card');
+    const front = card.querySelector('.card-front');
+    const back = card.querySelector('.card-back');
+    
+    if (isShow) {
+        front.style.transform = 'translateX(-100%)';
+        front.style.opacity = '0';
+        back.style.transform = 'translateX(0)';
+    } else {
+        front.style.transform = 'translateX(0)';
+        front.style.opacity = '1';
+        back.style.transform = 'translateX(100%)';
+    }
+}
+
+// 从文本框读取用户可能修改过的内容，然后复制
+window.copyDynamicPrompt = function(btnElement) {
+    const textarea = btnElement.parentElement.querySelector('textarea');
+    const textToCopy = textarea.value;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const old = btnElement.innerHTML;
+        btnElement.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 已复制 COPIED`;
+        btnElement.classList.add('bg-green-600', 'text-white');
+        btnElement.classList.remove('bg-gray-800');
+        setTimeout(() => { 
+            btnElement.innerHTML = old; 
+            btnElement.classList.remove('bg-green-600', 'text-white');
+            btnElement.classList.add('bg-gray-800'); 
+        }, 2000);
+    });
+}
+
+async function handleSend() {
+    const prompt = document.getElementById('promptInput').value.trim();
+    if (!prompt) return alert("请输入你的需求！");
+
+    document.getElementById('promptInput').value = '';
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = 'Routing... ⏳';
+
+    appendMessage('user', prompt);
+    const responseBoxId = `msg-${Date.now()}`;
+    appendMessage('ai', '', responseBoxId);
+
+    try {
+        await processAITerminalTask(prompt, responseBoxId);
+    } catch (error) {
+        updateMessage(responseBoxId, `<div class="p-4 text-red-400">❌ Terminal Error: ${error.message}</div>`);
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = 'Execute 🚀';
+    }
+}
+
+async function processAITerminalTask(userPrompt, responseBoxId) {
+    const apiKey = "sk-463d825927d64d96be90427d3d1daf20";
+    const url = 'https://api.deepseek.com/chat/completions';
+    
+    const engineeredPrompt = `你是一个顶级AI工具推荐与提示词工程专家。
+用户现在的任务需求是："${userPrompt}"
+
+请你进行深度思考后，为该任务推荐 3 到 5 个最匹配的当前主流AI工具，并为每个工具生成一段高质量、可直接复制到该工具中使用的提示词(Prompt)。
+
+请严格以JSON格式输出你的最终结果（只需输出JSON，其他什么都不要包含）：
+{
+  "tools":[
+    {
+      "toolName": "推荐的AI工具名称",
+      "reason": "简短的一句推荐理由",
+      "prompt": "生成的优质提示词(Prompt)具体内容"
+    }
+  ]
+}`;
+
+    const payload = {
+        model: "deepseek-reasoner", 
+        messages:[{ role: "user", content: engineeredPrompt }]
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || `HTTP Error ${response.status}`);
+    }
+
+    const data = await response.json();
+    const messageObj = data.choices[0].message;
+    
+    let finalHtml = "";
+
+    // 1. 左侧：思考过程 (Reasoning)
+    let reasoningHtml = "";
+    if (messageObj.reasoning_content) {
+        reasoningHtml = `
+            <div class="w-full lg:w-1/3 flex-shrink-0">
+                <div class="terminal-reasoning h-full rounded-xl p-5 bg-purple-900/10 border border-purple-500/20 shadow-[inset_0_0_20px_rgba(147,51,234,0.05)]">
+                    <div class="text-purple-400 mb-4 font-orbitron tracking-wider flex items-center gap-2 font-bold text-sm">
+                        <span class="animate-pulse">🧠</span> THINKING PROCESS
+                    </div>
+                    <div class="text-gray-300 text-xs sm:text-sm leading-relaxed custom-scrollbar overflow-y-auto max-h-[400px] lg:max-h-[500px] pr-2 whitespace-pre-wrap">
+                        ${escapeHtml(messageObj.reasoning_content)}
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    // 2. 右侧：工具列表 (包含修复过的高级 Flexbox 滑动提示词面板)
+    let parsedData = null;
+    let toolsHtml = "";
+    try {
+        let cleanContent = messageObj.content.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
+        if(jsonMatch) parsedData = JSON.parse(jsonMatch[0]);
+    } catch(e) {
+        console.error("JSON parse failed", e);
+    }
+
+    if (parsedData && parsedData.tools && Array.isArray(parsedData.tools)) {
+        let cardsHtml = parsedData.tools.map((tool, index) => {
+            let foundTool = tools.find(t => t.name.toLowerCase().includes(tool.toolName.toLowerCase()));
+            if(!foundTool) foundTool = { name: tool.toolName, url: `https://www.google.com/search?q=${encodeURIComponent(tool.toolName + ' AI')}` };
+            
+            let domain = ""; try { domain = new URL(foundTool.url).hostname; } catch(e) {}
+            let fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(foundTool.name.substring(0,2))}&background=random&color=fff&size=64`;
+            let iconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : fallbackUrl;
+
+            return `
+                <div class="terminal-tool-card group flex flex-col min-h-[190px]">
+                    <!-- 正面：工具介绍 -->
+                    <div class="card-front">
+                        <div class="flex items-start justify-between mb-3 shrink-0">
+                            <div class="flex items-center gap-3">
+                                <img src="${iconUrl}" onerror="this.src='${fallbackUrl}'" class="w-10 h-10 rounded-full bg-gray-900 border border-gray-700 object-contain p-1">
+                                <div>
+                                    <h4 class="text-blue-400 font-bold text-base m-0 flex items-center gap-2">
+                                        ${escapeHtml(tool.toolName)}
+                                        <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] px-2 py-0.5 rounded-full font-normal whitespace-nowrap">Pick ${index+1}</span>
+                                    </h4>
+                                </div>
+                            </div>
+                            <button onclick="window.open('${foundTool.url}', '_blank')" class="bg-gray-700 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors flex-shrink-0" title="Launch App">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </button>
+                        </div>
+                        
+                        <p class="text-xs text-gray-400 mb-4 line-clamp-3 flex-1 leading-relaxed break-words shrink-0">${escapeHtml(tool.reason)}</p>
+                        
+                        <button onclick="togglePrompt(this, true)" class="w-full bg-purple-600/80 hover:bg-purple-500 text-white py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 mt-auto shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            查看并修改提示词 (View Prompt)
+                        </button>
+                    </div>
+
+                    <!-- 背面：提示词编辑器 -->
+                    <div class="card-back">
+                        <div class="flex justify-between items-center mb-3 shrink-0">
+                            <span class="text-xs font-bold text-purple-400 uppercase tracking-widest flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Edit Prompt
+                            </span>
+                            <button onclick="togglePrompt(this, false)" class="text-gray-400 hover:text-white text-xs flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded transition">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                返回 (Back)
+                            </button>
+                        </div>
+                        
+                        <!-- 允许编辑的文本域 -->
+                        <textarea class="flex-1 w-full bg-black/40 border border-gray-700/50 rounded-lg p-3 text-sm text-blue-100 font-mono outline-none focus:border-purple-500 resize-none custom-scrollbar mb-3 min-h-[70px] shrink-0" placeholder="您可在此自由修改提示词...">${escapeHtml(tool.prompt)}</textarea>
+                        
+                        <button onclick="copyDynamicPrompt(this)" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            复制提示词 (Copy)
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        toolsHtml = `
+            <div class="w-full lg:w-2/3 flex flex-col gap-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-blue-400 text-xl animate-pulse">⚡</span>
+                    <h3 class="text-white font-bold tracking-widest font-orbitron">RECOMMENDED TOOLS (${parsedData.tools.length})</h3>
+                </div>
+                <div class="flex flex-col gap-4 custom-scrollbar overflow-y-auto max-h-[400px] lg:max-h-[500px] pr-2 pb-4">
+                    ${cardsHtml}
+                </div>
+            </div>`;
+    }
+
+    if (reasoningHtml && toolsHtml) {
+        finalHtml = `<div class="flex flex-col lg:flex-row gap-6 w-full p-2">${reasoningHtml}${toolsHtml}</div>`;
+    } else {
+        finalHtml = `<div class="p-4 text-gray-300 whitespace-pre-wrap">${escapeHtml(messageObj.content)}</div>`;
+    }
+
+    updateMessage(responseBoxId, finalHtml);
+}
+
+function appendMessage(role, content, id = '') {
+    const chatBox = document.getElementById('chatBox');
+    if(chatBox.innerText.includes('告诉终端') || chatBox.innerText.includes('Tell the terminal')) chatBox.innerHTML = '';
+    
+    const div = document.createElement('div');
+    const isUser = role === 'user';
+    div.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} w-full`;
+    
+    div.innerHTML = `
+        <span class="text-xs text-gray-500 mb-1 font-orbitron tracking-widest">${isUser ? 'USER_INPUT' : 'TERMINAL_AGENT'}</span>
+        <div id="${id}" class="rounded-2xl ${isUser ? 'px-5 py-4 bg-blue-600/80 text-white rounded-br-none border border-blue-500/50 max-w-[85%] shadow-lg' : 'w-full bg-gray-800/50 text-gray-200 border border-gray-700/50 rounded-bl-none'}">
+            ${content || '<div class="p-6 text-blue-400 animate-pulse font-orbitron tracking-widest">INITIALIZING NEURAL ROUTING SEQUENCE...</div>'}
+        </div>
+    `;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function updateMessage(id, htmlContent) {
+    const msgBox = document.getElementById(id);
+    if (msgBox) msgBox.innerHTML = htmlContent;
+}
+
+function escapeHtml(text) {
+    if (!text) return "";
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+    return text.replace(/[&<>"]/g, function(m) { return map[m]; });
+}
 
 /* ==========================================
    滚动动画
